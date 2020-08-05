@@ -1,15 +1,33 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import sqlite3 as sql
-import os
-
+import os, time
 
 app = Flask(__name__)
+
+
+def get_time():
+	return time.asctime()[11:19]
+
+def __check_num(Time):
+	return Time[0:2]
+
 
 def find_file():
 	for filename in os.listdir():
 		data = filename.split('.')
 		if len(data) >= 2:
 			if data[1] == 'db': return data[0]+'.db'
+
+def get_database_datas():
+	send = []
+	with sql.connect(find_file()) as conn:
+		c = conn.cursor()
+		c.execute('SELECT name FROM sqlite_master WHERE type="table";')
+		for name in c.fetchall():
+			for row in c.execute(f"SELECT * FROM {name[0]}"):
+				send.append(row)
+	return send
+
 
 class show_all:
 	def __init__(self, ip):
@@ -67,7 +85,39 @@ def index():
 			text = text+' '+edj
 		return text
 	else:
-		return "<form method='POST'><p>name: </p><input type='text' name='name' id='name'><br><p>work: </p><input type='text' name='work' id='work'<br><p>timeline: </p><input type='text' name='timeline' id='timeline'><br><input type='text' name='timerange' id='timerange'><br><input type='submit' value='Submit'></form> <p>{{data}}</p>"	
+		return render_template('index.html', data=ip_add)
+@app.route('/new_table', methods=['POST', 'GET'])
+def new_tables():
+	ip_add = request.remote_addr
+	s = show_all(ip_add)
+	check_ip = s.print_pass_ips()
+	check = s._check_ip()
+	if check == 'old user':
+		text = ''
+		for edj in s.print_user_data():
+			text = text+' '+edj
+		name = text.split(' ')[1]
+		work = text.split(' ')[3]
+	if request.method == "POST":
+		time_line = request.form["time_L"]
+		time_range = request.form["time_R"]
+		data = [(name, ip_add, work, time_line, time_range)]
+		with sql.connect(find_file()) as conn:
+			c = conn.cursor()
+			c.executemany(f"INSERT INTO {name} VALUES (?, ?, ?, ?, ?)", data)
+			conn.commit()
+	return "<form method='POST'><input type='text' id='time_L' name='time_L'><input type='text' id='time_R', name='time_R'> <input type='submit' value='Submit'></form>"
+
+@app.route('/show_all')
+def SHOW_ALL():
+	send=''
+	for data in get_database_datas():
+		text = ''
+		for line in data:
+			text = text+' '+line
+		send = send+'\n'+text
+	return send
+	#return render_template('show_all.html', data=send)
+
 if __name__ == '__main__':
 	app.run('0.0.0.0', debug=True)
-
