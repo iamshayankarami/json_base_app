@@ -71,13 +71,12 @@ def index():
 	if request.method == "POST":
 		name = request.form["name"]
 		work = request.form["work"]
-		timeline = request.form["timeline"]
-		timerange = request.form["timerange"]
-		data = [(name, ip_add, work, timeline, timerange)]
+		TIME = __check_num(get_time())
+		data = [(name, ip_add, work, TIME)]
 		with sql.connect(find_file()) as conn:
 			c = conn.cursor()
-			c.execute(f'CREATE TABLE {name} (name, ip, work, timeline, timerange)')
-			c.executemany(f"INSERT INTO {name} VALUES (?, ?, ?, ?, ?)", data)
+			c.execute(f'CREATE TABLE {name} (name, ip, work, time)')
+			c.executemany(f"INSERT INTO {name} VALUES (?, ?, ?, ?)", data)
 			conn.commit()
 	if check == 'old user':
 		text = ''
