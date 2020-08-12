@@ -1,7 +1,9 @@
 import time
 import json
 import os
-
+from flask import Flask, request, render_template
+import hashlib
+app = Flask(__name__)
 
 def get_time():
 	return time.asctime()[11:19]
@@ -23,8 +25,7 @@ def get_data_from_user():
 	return data
 
 #lets go to json, I'm the best programmer in the world, I LOVE CODING
-
-def get_json(data):
+def singin_json(data):
 	with open('data.json', 'r') as readfile:
 		send_data = json.load(readfile)
 	gusse_table = [table_name for table_name in send_data if table_name == data[0]]
@@ -44,16 +45,30 @@ def send_request(send_user, name, time_range):
 		send_data[gusse_table[0]].append({'request_user': name, 'time_range': time_range})
 	else:
 		print('user not founded')
-		
 
+def json_singin(data):
+	with open('all_data.json', 'r') as read:
+		send_data = json.load(read)
+	location = data[5].split('/')[0]
+	send_data[location] = {}
+	send_data[location][data[1]] = {}
+	send_data[location][data[1]]['private'] = {'name': data[0], 'username': data[1], 'password': data[2], 'timeline': data[3], 'work': data[4], 'location': data[5], 'ip': data[6], 'all_money': data[7]}
+	send_data[location][data[1]]['poblic'] = {'name': data[0], 'username': data[1], 'timeline': data[3], 'work': data[4], 'location': data[5]}
 
-def main():
-	user = get_data_from_user()
-	today = today_date()
-	to = ''
-	to = to+today[:10]+today[19:] 
-	data = (to, user[0], user[1], user[2])
-	get_json(data)
+	with open('all_data.json', 'w') as write:
+		json.dump(send_data, write)
 
-if __name__ == '__main__':
-	main()
+def sing_in():
+	print('write your private information ["private key"]')
+	name = input('Name: ')
+	username = input('username: ')
+	password = make_password_to_save(input('password: '))
+	timeline = input('timeline: ')
+	work = input('work: ')
+	location = input('location: ')
+	ip = '10:23:33:4d'
+	all_money = 0
+	private_data = (name, username, password, timeline, work, location, ip, all_money)
+	publice_data = (username, timeline, work, location)
+	return private_data, publice_data
+
