@@ -1,9 +1,9 @@
 import time
 import json
 import os
-from flask import Flask, request, render_template
 import hashlib
-app = Flask(__name__)
+
+json_file_name = 'data.json'
 
 def get_time():
 	return time.asctime()[11:19]
@@ -17,9 +17,20 @@ def __check_num(Time):
 def make_password_to_save(password):
 	return hashlib.sha256(password.encode()).hexdigest()
 
-def get_send_data():
-	with open('all_data.json', 'r') as read:
-		send_data = json.load(read)
+def json_file_status():
+	with open(json_file_name, 'r') as Read:
+		if Read.read() == '':
+			return 'true'
+		else:
+			return 'false'
+
+
+def get_send_data(file_status=json_file_status()):
+	if file_status == 'ture':
+		send_data = {}
+	else:
+		with open(json_file_name, 'r') as read:
+			send_data = json.load(read)
 	return send_data
 
 def json_singin(data):
@@ -28,19 +39,28 @@ def json_singin(data):
 	geuss = [table for table in send_data if table == location]
 	data_send_json = {}
 	data_send_json[data[1]] = []
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': data[3], 'work': data[4], 'location': data[5], 'ip': data[6], 'all_money': data[7]})
+	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': data[3], 'work': data[4], 'location': data[5], 'ip': data[6]})
 	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': data[3], 'work': data[4], 'location': data[5]})
 	data_send_json[data[1]].append({'requests': []})
+	data_send_json[data[1]].append({'send_requests': []})
+	#data_send_json[data[1]].append({'user_activation': ['sing_in']})
 	if geuss == []:
 		send_data[location] = []
 		send_data[location].append(data_send_json)
 	else:
 		send_data[geuss[0]].append(data_send_json)
-	with open('all_data.json', 'w') as write:
+	with open(json_file_name, 'w') as write:
 		json.dump(send_data, write)
 
 def get_time_range_of_user():
 	pass
+
+def get_user_info_by_device_ip_add(ip_add):
+	send_data = get_send_data()
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if user[name][0]['ip'] == ip_add: return name
 
 def show_all_users_poblic_data_in_user_location(user_location):
 	append_data = []
@@ -61,11 +81,33 @@ def get_user_to(usern):
 				if users == usern:
 					return ur[users]
 
+def delete_user(username):
+	send_data = get_send_data()
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if username == name:
+					send_data[citi].remove(user)
 
-def add_request(send_user, my_data, time_loc):
-	user_data = get_user_to(send_user)
-	user_data.append(
-	
+def add_request(send_user, user_name, request_thing, time_loc):
+	send_data = get_send_data()
+	return_data = {'request_from': user_name, 'request_send_time': time_loc, 'request_thing': request_thing, 'request_status': 'sended_request'}
+
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if send_user == name:
+					user[name][2]['requests'].append(return_data)
+
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if send_user == name:
+					user[name][3]['send_requests'].append({'request_to': send_user, 'request_send_time': time_loc, 'request_thing': request_thing, 'request_status': 'sended_request'})
+	with open(json_file_name, 'w') as Write:
+		json.dump(send_data)
+
+
 
 def sing_in():
 	print('write your private information ["private key"]')
@@ -77,9 +119,8 @@ def sing_in():
 	location = input('location: ')
 	ip = '10:23:33:4d'
 	all_money = 0
-	private_data = (name, username, password, timeline, work, location, ip, all_money)
-	publice_data = (username, timeline, work, location)
-	return private_data, publice_data
+	private_data = (name, username, password, timeline, work, location, ip)
+	return private_data
 
 def login():
 	print('login')
@@ -91,13 +132,3 @@ def login():
 		return get_user_to(username)[1]
 	else:
 		print('wronge password')
-
-print('are you a new user? [Y, N]')
-g = input()
-if g == 'Y' or g=='y' or g=='':
-	data = sing_in()[0]
-	json_singin(data)
-elif g=='N' or g=='n':
-	my_data = login()
-	send_to = input('buy from: ')
-	add_request(send_to, my_data, '7')		
