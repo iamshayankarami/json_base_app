@@ -1,6 +1,6 @@
-from flask import Flask, request, render_template
-import sqlite3 as sql
+from flask import Flask, request, render_template, url_for, redirect
 import os, time
+from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add
 
 app = Flask(__name__)
 
@@ -17,16 +17,6 @@ def find_file():
 		data = filename.split('.')
 		if len(data) >= 2:
 			if data[1] == 'db': return data[0]+'.db'
-
-def get_database_datas():
-	send = []
-	with sql.connect(find_file()) as conn:
-		c = conn.cursor()
-		c.execute('SELECT name FROM sqlite_master WHERE type="table";')
-		for name in c.fetchall():
-			for row in c.execute(f"SELECT * FROM {name[0]}"):
-				send.append(row)
-	return send
 
 
 class show_all:
@@ -62,29 +52,69 @@ class show_all:
 	def print_user_data(self):
 		return self.user_data[len(self.user_data)-1]
 
-@app.route('/', methods=["GET", "POST"])
-def index():
+
+@app.route('/singin', methods=["GET", "POST"])
+def singin():
+	global user_username
 	ip_add = request.remote_addr
-	s = show_all(ip_add)
-	check_ip = s.print_pass_ips()
-	check = s._check_ip()
-	if request.method == "POST":
+	if request.method == 'POST':
 		name = request.form["name"]
 		work = request.form["work"]
-		TIME = __check_num(get_time())
-		data = [(name, ip_add, work, TIME)]
-		with sql.connect(find_file()) as conn:
-			c = conn.cursor()
-			c.execute(f'CREATE TABLE {name} (name, ip, work, time)')
-			c.executemany(f"INSERT INTO {name} VALUES (?, ?, ?, ?)", data)
-			conn.commit()
-	if check == 'old user':
-		text = ''
-		for edj in s.print_user_data():
-			text = text+' '+edj
-		return text
-	else:
-		return render_template('index.html', data=ip_add)
+		password = make_password_to_save(request.form["password"])
+		username = request.form["username"]
+		timeline = request.form["timeline"]
+		location = request.form["location"]
+		push_data = (name, username, password, timeline, work, location, ip_add)
+		json_singin(push_data)
+		user_username = username
+		return redirect(url_for('index'))
+	#return render_template("singin.html")
+	return '''<center><form method='POST'><p>name</p><input type='text' name='name'><br><p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><p>work</p><input type='text' name='work'><br><p>timeline</p><input type='text' name='timeline'><br><p>location</p><input type='text' name='location'><br><input type='submit' name='submit' id='submit'></form></center>'''
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+	global user_username
+	ip_add = request.remote_addr
+	if request.method == "POST":
+		username = request.form["username"]
+		password = make_password_to_save(request.form["password"])
+		if get_user_to(username)[0] == []:
+			return 'username not founded'
+		else:
+			user_p_info = get_user_to(username)[0]
+			if password == user_p_info['password']:
+				user_username = username
+				return redirect(url_for('Send_request'))
+			else:
+				return 'wronge password'
+	return render_template('login.html')
+
+@app.route('/send_request', methods=["GET", "POST"])
+def Send_request():
+	global user_username
+	ip_add = request.remote_addr
+	print(get_user_to(user_username))
+	if request.method == "POST":
+		send_to = request.form["send_to"]
+		number = request.form["number"]
+		timel = request.form["timel"]
+	#add_request(send_to, number, timel)
+	return f'<p>welcome to send page {user_username} </p>'
+
+@app.route('/', methods=["GET", "POST"])
+def index():
+	#ip_add = request.remote_addr
+	ip_add = '10:23:33:4d' #just for testing
+	user_username = get_user_info_by_device_ip_add(ip_add)
+
+	user_poblic_info = get_user_to(user_username)[1]
+	user_provate_info = get_user_to(user_username)[0]
+	user_requests = get_user_to(user_username)[2]
+	user_send_requests = get_user_to(user_username)[3]
+	print(user_poblic_info)
+	return f'''<p>main page of {user_provate_info['work']}</p>'''
+
 @app.route('/new_table', methods=['POST', 'GET'])
 def new_tables():
 	ip_add = request.remote_addr
@@ -119,4 +149,4 @@ def SHOW_ALL():
 	#return render_template('show_all.html', data=send)
 
 if __name__ == '__main__':
-	app.run('0.0.0.0', debug=True)
+	app.run(debug=True)
