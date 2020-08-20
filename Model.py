@@ -3,6 +3,8 @@ import json
 import os
 import hashlib
 
+#TODO find userinfo by ip have to change to something else
+
 json_file_name = 'data.json'
 
 def get_time():
@@ -43,7 +45,7 @@ def json_singin(data):
 	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': data[3], 'work': data[4], 'location': data[5]})
 	data_send_json[data[1]].append({'requests': []})
 	data_send_json[data[1]].append({'send_requests': []})
-	#data_send_json[data[1]].append({'user_activation': ['sing_in']})
+	data_send_json[data[1]].append({'user_activation': 'sing_in'})
 	if geuss == []:
 		send_data[location] = []
 		send_data[location].append(data_send_json)
@@ -62,16 +64,16 @@ def get_user_info_by_device_ip_add(ip_add):
 			for name in user:
 				if user[name][0]['ip'] == ip_add: return name
 
+
 def show_all_users_poblic_data_in_user_location(user_location):
 	append_data = []
 	send_data = get_send_data()
 	for loc in send_data:
 		if user_location == loc:
-			for line in send_data[loc]:
-				for name in line:
-					append_data.append(line[name][1])
+			for user in send_data[loc]:
+				for name in user:
+					append_data.append(user[name])
 	return append_data
-
 
 def get_user_to(usern):
 	send_data = get_send_data()
@@ -107,7 +109,18 @@ def add_request(send_user, user_name, request_thing, time_loc):
 	with open(json_file_name, 'w') as Write:
 		json.dump(send_data)
 
+def LogOut(username):
+	send_data = get_send_data()
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if username == name:
+					user[name][4] = 'logout'
+	with open('json_file_name', 'w') as W:
+		json.dump(send_data, W)
 
+def check_user_activation(username):
+	return get_user_to(username)[4]
 
 def sing_in():
 	print('write your private information ["private key"]')
@@ -118,7 +131,6 @@ def sing_in():
 	work = input('work: ')
 	location = input('location: ')
 	ip = '10:23:33:4d'
-	all_money = 0
 	private_data = (name, username, password, timeline, work, location, ip)
 	return private_data
 

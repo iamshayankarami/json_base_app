@@ -5,7 +5,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
-from Model import make_password_to_save, get_user_to
+from Model import make_password_to_save, get_user_to, get_user_info_by_device_ip_add
 
 kivy.require("1.10.1")
 

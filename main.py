@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, url_for, redirect
 import os, time
-from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add
+from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOut
 
 app = Flask(__name__)
 
@@ -18,39 +18,6 @@ def find_file():
 		if len(data) >= 2:
 			if data[1] == 'db': return data[0]+'.db'
 
-
-class show_all:
-	def __init__(self, ip):
-		self.ip = ip
-
-	def print_pass_ips(self):
-		self.return_data = []
-		self.send = []
-		with sql.connect(find_file()) as co:
-			c = co.cursor()
-			c.execute('SELECT name FROM sqlite_master WHERE type="table";')
-			for name in c.fetchall():
-				name = name[0]
-				self.return_data.append([row for row in c.execute(f"SELECT * FROM {name}")])
-		for data in self.return_data:
-			data = data[0]
-			self.send.append(data)
-		return self.send
-
-	def _check_ip(self):
-		self.output = []
-		self.user_data = []
-		for IP in self.send:
-			IPS = IP[1]
-			if IPS == self.ip:
-				self.output.append(IP)
-				self.user_data.append(IP)
-		if len(self.output) >= 1:
-			return 'old user'
-		else:
-			pass
-	def print_user_data(self):
-		return self.user_data[len(self.user_data)-1]
 
 
 @app.route('/singin', methods=["GET", "POST"])
@@ -104,49 +71,32 @@ def Send_request():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-	#ip_add = request.remote_addr
-	ip_add = '10:23:33:4d' #just for testing
+	ip_add = request.remote_addr
+	#ip_add = '10:23:33:4d' #just for testing
 	user_username = get_user_info_by_device_ip_add(ip_add)
 
 	user_poblic_info = get_user_to(user_username)[1]
 	user_provate_info = get_user_to(user_username)[0]
 	user_requests = get_user_to(user_username)[2]
 	user_send_requests = get_user_to(user_username)[3]
-	print(user_poblic_info)
-	return f'''<p>main page of {user_provate_info['work']}</p>'''
+	return f'''<p>main page of {user_provate_info['name']}</p><a href="/show_all">show_all</a><br><a href="/logout">log out</a><b>{os.environ['USER']}</b>'''
 
-@app.route('/new_table', methods=['POST', 'GET'])
-def new_tables():
-	ip_add = request.remote_addr
-	s = show_all(ip_add)
-	check_ip = s.print_pass_ips()
-	check = s._check_ip()
-	if check == 'old user':
-		text = ''
-		for edj in s.print_user_data():
-			text = text+' '+edj
-		name = text.split(' ')[1]
-		work = text.split(' ')[3]
-	if request.method == "POST":
-		time_line = request.form["time_L"]
-		time_range = request.form["time_R"]
-		data = [(name, ip_add, work, time_line, time_range)]
-		with sql.connect(find_file()) as conn:
-			c = conn.cursor()
-			c.executemany(f"INSERT INTO {name} VALUES (?, ?, ?, ?, ?)", data)
-			conn.commit()
-	return "<form method='POST'><input type='text' id='time_L' name='time_L'><input type='text' id='time_R', name='time_R'> <input type='submit' value='Submit'></form>"
 
 @app.route('/show_all')
 def SHOW_ALL():
-	send=''
-	for data in get_database_datas():
-		text = ''
-		for line in data:
-			text = text+' '+line
-		send = send+'\n'+text
-	return send
+	ip_add = request.remote_addr
+	user_username = get_user_info_by_device_ip_add(ip_add)
+	user_data=get_user_to(user_username)
+	show_data = show_all_users_poblic_data_in_user_location(user_data[0]['location'])
+	return ''.join([f"<b>{users[0]['name']} </b><b>{users[0]['work']} </b><b>{users[0]['timeline']} </b><b>{users[2]['requests']}</b><br>" for users in show_data])
 	#return render_template('show_all.html', data=send)
 
+@app.route('/logout')
+def logout():
+	ip_add = request.remote_addr
+	user_username = get_user_info_by_device_ip_add(ip_add)
+	LogOut(user_username)
+	return redirect(url_for('login'))
+
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run('0.0.0.0', debug=True)
