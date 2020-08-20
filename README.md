@@ -3,8 +3,6 @@ this app is powerd by MACHINE LEARNING tree coding to get users best store to bu
 
 # todo list:
 
-- [ ] change ip to name to get user
-
-- [ ] build the NN and using sklearn
+- [x] change ip to name to get user
 
 # I'am Shayan Karami, I'am a programmer, I LOVE CODING.
