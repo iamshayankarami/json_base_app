@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, url_for, redirect
 import os, time
-from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOut
+from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOuT, change_ip_add, check_active, login_m, show_requests, send_request
 
 app = Flask(__name__)
 
@@ -22,7 +22,6 @@ def find_file():
 
 @app.route('/singin', methods=["GET", "POST"])
 def singin():
-	global user_username
 	ip_add = request.remote_addr
 	if request.method == 'POST':
 		name = request.form["name"]
@@ -33,15 +32,13 @@ def singin():
 		location = request.form["location"]
 		push_data = (name, username, password, timeline, work, location, ip_add)
 		json_singin(push_data)
-		user_username = username
-		return redirect(url_for('index'))
+		return redirect(url_for('index', username=username))
 	#return render_template("singin.html")
 	return '''<center><form method='POST'><p>name</p><input type='text' name='name'><br><p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><p>work</p><input type='text' name='work'><br><p>timeline</p><input type='text' name='timeline'><br><p>location</p><input type='text' name='location'><br><input type='submit' name='submit' id='submit'></form></center>'''
 
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-	global user_username
 	ip_add = request.remote_addr
 	if request.method == "POST":
 		username = request.form["username"]
@@ -49,54 +46,63 @@ def login():
 		if get_user_to(username)[0] == []:
 			return 'username not founded'
 		else:
-			user_p_info = get_user_to(username)[0]
-			if password == user_p_info['password']:
-				user_username = username
-				return redirect(url_for('Send_request'))
+			if password == get_user_to(username)[0]['password']:
+				#change_ip_add(username, ip_add)
+				login_m(username)
+				return redirect(url_for('index', username=username))
 			else:
 				return 'wronge password'
 	return render_template('login.html')
-
-@app.route('/send_request', methods=["GET", "POST"])
-def Send_request():
-	global user_username
-	ip_add = request.remote_addr
-	print(get_user_to(user_username))
-	if request.method == "POST":
-		send_to = request.form["send_to"]
-		number = request.form["number"]
-		timel = request.form["timel"]
-	#add_request(send_to, number, timel)
-	return f'<p>welcome to send page {user_username} </p>'
 
 @app.route('/', methods=["GET", "POST"])
 def index():
 	ip_add = request.remote_addr
 	#ip_add = '10:23:33:4d' #just for testing
-	user_username = get_user_info_by_device_ip_add(ip_add)
+	#user_username = get_user_info_by_device_ip_add(ip_add)
+	username = request.args.get('username', None)
+	print(check_active(username))
 
-	user_poblic_info = get_user_to(user_username)[1]
-	user_provate_info = get_user_to(user_username)[0]
-	user_requests = get_user_to(user_username)[2]
-	user_send_requests = get_user_to(user_username)[3]
-	return f'''<p>main page of {user_provate_info['name']}</p><a href="/show_all">show_all</a><br><a href="/logout">log out</a><b>{os.environ['USER']}</b>'''
+	user_poblic_info = get_user_to(username)[1]
+	user_provate_info = get_user_to(username)[0]
+	user_requests = get_user_to(username)[2]
+	user_send_requests = get_user_to(username)[3]
+	return f'''<p>main page of {user_provate_info['name']}</p><a href="{url_for('SHOW_ALL', username=username)}">show_all</a><br><a href={url_for('logout', username=username)}>log out</a><br><b>you have {len(user_requests['requests'])} requests </b><b>{show_requests(username)}</b>'''
 
 
 @app.route('/show_all')
 def SHOW_ALL():
 	ip_add = request.remote_addr
-	user_username = get_user_info_by_device_ip_add(ip_add)
+	user_username = request.args.get('username', None)
 	user_data=get_user_to(user_username)
 	show_data = show_all_users_poblic_data_in_user_location(user_data[0]['location'])
-	return ''.join([f"<b>{users[0]['name']} </b><b>{users[0]['work']} </b><b>{users[0]['timeline']} </b><b>{users[2]['requests']}</b><br>" for users in show_data])
-	#return render_template('show_all.html', data=send)
+	return ''.join([f'''<a href={url_for('show_user', show_username=users[0]['name'], my_username=user_username)}>{users[0]['name']} </a><b>{users[0]['work']} </b><b>{users[0]['timeline']} </b><b>{users[0]['ip']}</b><br>''' for users in show_data])
+
+@app.route('/show_data_of')
+def show_user():
+	show_username = request.args.get('show_username', None)
+	my_username = request.args.get('my_username', None)
+	sned_user_p_info = get_user_to(show_username)[1]
+	time_list = ''.join([user_request for user_request in get_user_to(show_username)[2]['requests']])
+	if time_list == '':
+		time_list = f"free from {sned_user_p_info['timeline'].split('/')[0]}, to {sned_user_p_info['timeline'].split('/')[1]}"
+	return f'''from {my_username}, to {show_username}, {time_list} <a href={url_for('send_Request', my_username=my_username, send_username=show_username)}>send request</a>'''
+
+@app.route('/send_request', methods=['POST', 'GET'])
+def send_Request():
+	my_username = request.args.get('my_username', None)
+	send_username = request.args.get('send_username', None)
+	if request.method == 'POST':
+		Time = request.form["Time"]
+		print({'send_to': send_username, 'from_you': my_username, 'time': Time})
+		#send_request(send_username, my_username, Time)
+	return f"<form method='POST'><p>Time: </p><input type='text' name='Time'><input type='submit' name='submit' id='submit'></form>"
 
 @app.route('/logout')
 def logout():
 	ip_add = request.remote_addr
-	user_username = get_user_info_by_device_ip_add(ip_add)
-	LogOut(user_username)
-	return redirect(url_for('login'))
+	LogOuT(request.args.get('username', None))
+	#return redirect(url_for('login'))
+	return 'log-out'
 
 if __name__ == '__main__':
-	app.run('0.0.0.0', debug=True)
+	app.run(debug=True)

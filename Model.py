@@ -5,7 +5,7 @@ import hashlib
 
 #TODO find userinfo by ip have to change to something else 
 
-json_file_name = 'data.json'
+json_file_name = 'test.json'
 
 def get_time():
 	return time.asctime()[11:19]
@@ -27,13 +27,11 @@ def json_file_status():
 			return 'false'
 
 
-def get_send_data(file_status=json_file_status()):
-	if file_status == 'ture':
-		send_data = {}
-	else:
-		with open(json_file_name, 'r') as read:
-			send_data = json.load(read)
+def get_send_data():
+	with open(json_file_name, 'r') as ReaD:
+		send_data = json.load(ReaD)
 	return send_data
+
 
 def json_singin(data):
 	send_data = get_send_data()
@@ -45,7 +43,7 @@ def json_singin(data):
 	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': data[3], 'work': data[4], 'location': data[5]})
 	data_send_json[data[1]].append({'requests': []})
 	data_send_json[data[1]].append({'send_requests': []})
-	data_send_json[data[1]].append({'user_activation': 'sing_in'})
+	data_send_json[data[1]].append({'user_activation': 'log-in'})
 	if geuss == []:
 		send_data[location] = []
 		send_data[location].append(data_send_json)
@@ -56,6 +54,19 @@ def json_singin(data):
 
 def get_time_range_of_user():
 	pass
+
+def change_ip_add(username, ip_add):
+	send_data = get_send_data()
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if name == username:
+					if user[name][0]['ip'] != ip_add:
+						user[name][0]['ip'] = ip_add
+	with open(json_file_name, 'w') as W:
+		json.dump(send_data, W)
+
+
 
 def get_user_info_by_device_ip_add(ip_add):
 	send_data = get_send_data()
@@ -106,21 +117,63 @@ def add_request(send_user, user_name, request_thing, time_loc):
 			for name in user:
 				if send_user == name:
 					user[name][3]['send_requests'].append({'request_to': send_user, 'request_send_time': time_loc, 'request_thing': request_thing, 'request_status': 'sended_request'})
-	with open(json_file_name, 'w') as Write:
+	with open(json_file_name, 'w') as write_file:
 		json.dump(send_data)
 
-def LogOut(username):
+def LogOuT(username):
 	send_data = get_send_data()
 	for citi in send_data:
 		for user in send_data[citi]:
 			for name in user:
 				if username == name:
-					user[name][4] = 'logout'
-	with open('json_file_name', 'w') as W:
+					user[name][4]['user_activation'] = 'log-out'
+	with open(json_file_name, 'w') as W:
 		json.dump(send_data, W)
+
+def login_active(username):
+	send_data = get_send_data()
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if name == username:
+					user[name][4]['user_activation'] = 'log-in'
+	with open(json_file_name, 'w') as write_file:
+		json.dump(send_data, write_file)
+
+def login_m(username):
+	send_data = get_send_data()
+	for citi in send_data:
+		for user in send_data[citi]:
+			for name in user:
+				if username == name:
+					user[name][4]['user_activation'] = 'log-in'
+	with open(json_file_name, 'w') as W:
+		json.dump(send_data, W)
+
+def check_active(username):
+	return get_user_to(username)[4]
+
+def show_requests(username):
+	if len(get_user_to(username)[2]['requests'])>=1:
+		return get_user_to(username)[2]['requests']
+	else:
+		return ''
 
 def check_user_activation(username):
 	return get_user_to(username)[4]
+
+def send_request(user, from_user, time_to):
+	send_data = get_send_data()
+	for citi in send_data:
+		for users in send_data[citi]:
+			for name in users:
+				if user == name:
+					users[name][2]['requests'].append({'request_from': from_user, 'time': time_to})
+				elif from_user == name:
+					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to})
+	with open(json_file_name, 'w') as write_file:
+		json.dump(send_data, write_file)
+
 
 def sing_in():
 	print('write your private information ["private key"]')
