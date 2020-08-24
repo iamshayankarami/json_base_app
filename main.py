@@ -61,7 +61,6 @@ def index():
 	#user_username = get_user_info_by_device_ip_add(ip_add)
 	username = request.args.get('username', None)
 	print(check_active(username))
-
 	user_poblic_info = get_user_to(username)[1]
 	user_provate_info = get_user_to(username)[0]
 	user_requests = get_user_to(username)[2]
@@ -80,12 +79,14 @@ def SHOW_ALL():
 @app.route('/show_data_of')
 def show_user():
 	show_username = request.args.get('show_username', None)
+	print(show_username)
 	my_username = request.args.get('my_username', None)
-	sned_user_p_info = get_user_to(show_username)[1]
-	time_list = ''.join([user_request for user_request in get_user_to(show_username)[2]['requests']])
-	if time_list == '':
-		time_list = f"free from {sned_user_p_info['timeline'].split('/')[0]}, to {sned_user_p_info['timeline'].split('/')[1]}"
-	return f'''from {my_username}, to {show_username}, {time_list} <a href={url_for('send_Request', my_username=my_username, send_username=show_username)}>send request</a>'''
+	sned_user_p_info = get_user_to(show_username)
+	print(get_user_to(show_username)[2]['requests'])
+	#time_list = ''.join([user_request for user_request in get_user_to(show_username)[2]['requests']])
+	#if time_list == '':
+	#	time_list = f"free from {sned_user_p_info['timeline'].split('/')[0]}, to {sned_user_p_info['timeline'].split('/')[1]}"
+	return f'''from {my_username}, to {show_username} <a href={url_for('send_Request', my_username=my_username, send_username=show_username)}>send request</a>'''
 
 @app.route('/send_request', methods=['POST', 'GET'])
 def send_Request():
@@ -94,15 +95,14 @@ def send_Request():
 	if request.method == 'POST':
 		Time = request.form["Time"]
 		print({'send_to': send_username, 'from_you': my_username, 'time': Time})
-		#send_request(send_username, my_username, Time)
+		send_request(send_username, my_username, Time)
 	return f"<form method='POST'><p>Time: </p><input type='text' name='Time'><input type='submit' name='submit' id='submit'></form>"
 
 @app.route('/logout')
 def logout():
 	ip_add = request.remote_addr
 	LogOuT(request.args.get('username', None))
-	#return redirect(url_for('login'))
-	return 'log-out'
+	return redirect(url_for('login'))
 
 if __name__ == '__main__':
 	app.run(debug=True)

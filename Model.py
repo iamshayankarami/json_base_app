@@ -5,13 +5,14 @@ import hashlib
 
 #TODO find userinfo by ip have to change to something else 
 
-json_file_name = 'test.json'
+json_file_name = 'test1.json'
 
 def get_time():
 	return time.asctime()[11:19]
 
 def today_date():
-	return time.asctime()
+	re = f"{time.asctime()[:11]}{time.asctime()[20:]}"
+	return re
 
 def __check_num(Time):
 	return Time[0:2]
@@ -39,11 +40,12 @@ def json_singin(data):
 	geuss = [table for table in send_data if table == location]
 	data_send_json = {}
 	data_send_json[data[1]] = []
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': data[3], 'work': data[4], 'location': data[5], 'ip': data[6]})
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': data[3], 'work': data[4], 'location': data[5]})
+	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': time_line_for_every_day(data[3]), 'work': data[4], 'location': data[5], 'ip': data[6]})
+	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': time_line_for_every_day(data[3]), 'work': data[4], 'location': data[5]})
 	data_send_json[data[1]].append({'requests': []})
 	data_send_json[data[1]].append({'send_requests': []})
 	data_send_json[data[1]].append({'user_activation': 'log-in'})
+	#data_send_json[data[1]].append({'time_line': time_line_for_every_day(data[3].split('/'))})
 	if geuss == []:
 		send_data[location] = []
 		send_data[location].append(data_send_json)
@@ -197,3 +199,13 @@ def login():
 		return get_user_to(username)[1]
 	else:
 		print('wronge password')
+
+def time_line_for_every_day(time_line):
+	show_data=[]
+	time_line = time_line.split('/')
+	today = today_date()
+	time_send=[j for j in range(24)]
+	send_data=[i for i in time_send if i>int(time_line[0])-1 and i<int(time_line[1])+1]
+	for data in send_data:
+		show_data.append([f"{data}:{i}" for i in range(60) if i%int(time_line[2])==0])
+	return show_data
