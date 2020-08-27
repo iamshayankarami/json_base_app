@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, url_for, redirect
 import os, time
-from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOuT, change_ip_add, check_active, login_m, show_requests, send_request
+from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOuT, change_ip_add, check_active, login_m, show_requests, send_request, time_line_for_every_day
 
 app = Flask(__name__)
 
@@ -17,7 +17,6 @@ def find_file():
 		data = filename.split('.')
 		if len(data) >= 2:
 			if data[1] == 'db': return data[0]+'.db'
-
 
 
 @app.route('/singin', methods=["GET", "POST"])
@@ -39,7 +38,7 @@ def singin():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-	#ip_add = request.remote_addr
+	ip_add = request.remote_addr
 	if request.method == "POST":
 		username = request.form["username"]
 		password = make_password_to_save(request.form["password"])
@@ -60,7 +59,9 @@ def index():
 	#ip_add = '10:23:33:4d' #just for testing
 	#user_username = get_user_info_by_device_ip_add(ip_add)
 	username = request.args.get('username', None)
-	print(check_active(username))
+	if get_user_to(username)[4]['user_activation'] == 'log-out':
+		return redirect(url_for('login'))
+	#print(check_active(username))
 	#user_poblic_info = get_user_to(username)[1]
 	user_provate_info = get_user_to(username)[0]
 	user_requests = get_user_to(username)[2]
@@ -74,19 +75,14 @@ def SHOW_ALL():
 	user_username = request.args.get('username', None)
 	user_data=get_user_to(user_username)
 	show_data = show_all_users_poblic_data_in_user_location(user_data[0]['location'])
-	return ''.join([f'''<a href={url_for('show_user', show_username=users[0]['username'], my_username=user_username)}>{users[0]['name']} </a><b>{users[0]['work']} </b><b>{users[0]['timeline']} </b><b>{users[0]['ip']}</b><br>''' for users in show_data if users != users[0]['username'] != user_username])
+	return ''.join([f'''<a href={url_for('show_user', show_username=users[0]['username'], my_username=user_username)}>{users[0]['username']} </a><b>{users[0]['work']} </b><br><br>''' for users in show_data if users != users[0]['username'] != user_username])
 
-@app.route('/show_data_of')
+@app.route('/show_data_of', methods=['POST', 'GET'])
 def show_user():
 	show_username = request.args.get('show_username', None)
-	print(show_username)
 	my_username = request.args.get('my_username', None)
-	#sned_user_p_info = get_user_to(show_username)
-	print(get_user_to(show_username)[2]['requests'])
-	#time_list = ''.join([user_request for user_request in get_user_to(show_username)[2]['requests']])
-	#if time_list == '':
-	#	time_list = f"free from {sned_user_p_info['timeline'].split('/')[0]}, to {sned_user_p_info['timeline'].split('/')[1]}"
-	return f'''from {my_username}, to {show_username} <a href={url_for('send_Request', my_username=my_username, send_username=show_username)}>send request</a>'''
+	sho = ''.join([f'''<option>{times[0]} to {times[1]}</button> <br><br>''' for times in get_user_to(show_username)[1]['timeline']])
+	return f'<select name="times">{sho}</select>'
 
 @app.route('/send_request', methods=['POST', 'GET'])
 def send_Request():

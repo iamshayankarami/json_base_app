@@ -204,7 +204,10 @@ def time_line_for_every_day(time_line):
 	show_data=[]
 	time_line = time_line.split('/')
 	time_send=[j for j in range(24)]
-	send_data=[i for i in time_send if i>int(time_line[0])-1 and i<int(time_line[1])+1]
-	for data in send_data:
-		show_data.append([f"{data}:{i}" for i in range(60) if i%int(time_line[2])==0])
+	send_data=[i for i in time_send if i>int(time_line[0])-1 and i<int(time_line[1])]
+	for times in send_data:
+		for i in range(60):
+			if i%int(time_line[2]) == 0:
+				if i+int(time_line[2])==60: show_data.append(f"{times}:{i} {times+1}:{0}")
+				else: show_data.append(f"{times}:{i} {times}:{i+int(time_line[2])}")
 	return show_data
