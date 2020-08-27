@@ -1,5 +1,5 @@
 # cautious-doodle
-this app is powerd by MACHINE LEARNING tree coding to get users best store to buy and can be reserving from the app and pying from here too.
+this app is a app to find best stores to buy and can be reserving from the app and pying from here too.
 
 # todo list:
 
