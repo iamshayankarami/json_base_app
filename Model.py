@@ -120,7 +120,7 @@ def add_request(send_user, user_name, request_thing, time_loc):
 				if send_user == name:
 					user[name][3]['send_requests'].append({'request_to': send_user, 'request_send_time': time_loc, 'request_thing': request_thing, 'request_status': 'sended_request'})
 	with open(json_file_name, 'w') as write_file:
-		json.dump(send_data)
+		json.dump(send_data, write_file)
 
 def LogOuT(username):
 	send_data = get_send_data()
@@ -203,7 +203,6 @@ def login():
 def time_line_for_every_day(time_line):
 	show_data=[]
 	time_line = time_line.split('/')
-	today = today_date()
 	time_send=[j for j in range(24)]
 	send_data=[i for i in time_send if i>int(time_line[0])-1 and i<int(time_line[1])+1]
 	for data in send_data:
