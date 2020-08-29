@@ -211,3 +211,46 @@ def time_line_for_every_day(time_line):
 				if i+int(time_line[2])==60: show_data.append(f"{times}:{i} {times+1}:{0}")
 				else: show_data.append(f"{times}:{i} {times}:{i+int(time_line[2])}")
 	return show_data
+
+class send_Request:
+	def __init__(self, user_username, send_user_username):
+		self.send_user_username = send_user_username
+		self.user_username = user_username
+	def check_time_line(self):
+		self.send_data = []
+		self.times = get_user_to(self.send_user_username)[2]['requests']
+		self.times = [t['time'] for t in self.times]
+		if self.times == []: return get_user_to(self.send_user_username)[1]['timeline']
+		else:
+			#self.Time_line = [[time_line for timeshits in self.times if timeshits != time_line] for time_line in get_user_to(self.send_user_username)[1]['timeline']]
+			self.check_times=[]
+			self.times_from_timeline = get_user_to(self.send_user_username)[1]['timeline']
+			for time_line in self.times_from_timeline:
+				for line_time in self.times:
+					if time_line == line_time:
+						self.check_times.append(time_line)
+			for time_lines in self.check_times:
+				self.times_from_timeline.remove(time_lines)
+			return self.times_from_timeline
+
+	def chose_time_to_send(self):
+		print(self.times_from_timeline)
+		self.chose_file = input('chose one time_line: ')
+		for times in self.times_from_timeline:
+			if self.chose_file == times:
+				self.info = input(f"\033[97m[INFO]\033[00m: time chosed {self.chose_file} is valibel now do you want to rejester? ")
+				if self.info =='':
+					print(f'\033[97m[INFO]: \033[00m OK')
+					return self.chose_file
+
+	def send_request_to_user_in_command_line(self):
+		send_request(self.send_user_username, self.user_username, self.chose_file)
+		print(f"\033[97m[INFO]\033[00m: {self.chose_file} is sended to {self.send_user_username}")
+
+
+if __name__ == '__main__':
+	status = send_Request('shayan', 'shayan4')
+	status.check_time_line()
+	status.chose_time_to_send()
+	status.show_time_line()
+	#status.send_request_to_user_in_command_line()
