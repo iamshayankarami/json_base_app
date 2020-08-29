@@ -10,7 +10,7 @@ this app is a app to find best stores to buy and can be reserving from the app a
 - [x] buld the function that send a request to user at the time
 - [x] use flask to send the request for outher users, It's work realy good in command-line, I LOVE CODING
 - [x] make a time_list to see all times of user and cuts theme to user wants(DONE), I LOVE CODING
-- [ ] change chose time to be can chose request time by clicking the times that is invalid and not-regesterd and if someone choseed dont shoing it
+- [X] change chose time to be can chose request time by clicking the times that is invalid and not-regesterd and if someone choseed dont shoing it
 - [x] show all users are in the location of the user except own user username
 - [ ] make a tables of all week for users can be choses a time for a day in week
 - [ ] use render_template for all shows in flask
