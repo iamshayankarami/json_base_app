@@ -12,9 +12,9 @@ this app is a app to find best stores to buy and can be reserving from the app a
 - [x] make a time_list to see all times of user and cuts theme to user wants(DONE), I LOVE CODING
 - [ ] change chose time to be can chose request time by clicking the times that is invalid and not-regesterd and if someone choseed dont shoing it
 - [x] show all users are in the location of the user except own user username
-- [ ] make a tables of all week for users can be choses a time for a day in week
-- [ ] use render_template for all shows in flask
-- [ ] make a green color for the times that is valibel and red for the times those are regesterd by someone else, and blue for the times that regesters by user
+- [x] make login secure
+- [x] use render_template for all shows in flask
+- [x] make a green color for the times that is valibel and red for the times those are regesterd by someone else, and blue for the times that regesters by user
 - [x] remove the last houre minets by remove +1
 
 # I'am Shayan Karami, I'am a programmer, I LOVE CODING.

@@ -5,7 +5,7 @@ import hashlib
 
 #TODO find userinfo by ip have to change to something else 
 
-json_file_name = 'test1.json'
+json_file_name = 'test2.json'
 
 def get_time():
 	return time.asctime()[11:19]
@@ -251,6 +251,5 @@ class send_Request:
 if __name__ == '__main__':
 	status = send_Request('shayan', 'shayan4')
 	status.check_time_line()
-	status.chose_time_to_send()
-	status.show_time_line()
+	#status.chose_time_to_send()
 	#status.send_request_to_user_in_command_line()
