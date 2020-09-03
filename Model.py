@@ -3,9 +3,8 @@ import json
 import os
 import hashlib
 
-#TODO find userinfo by ip have to change to something else 
 
-json_file_name = 'test2.json'
+json_file_name = 'test3.json'
 
 def get_time():
 	return time.asctime()[11:19]
@@ -217,39 +216,31 @@ class send_Request:
 		self.send_user_username = send_user_username
 		self.user_username = user_username
 	def check_time_line(self):
-		self.send_data = []
 		self.times = get_user_to(self.send_user_username)[2]['requests']
 		self.times = [t['time'] for t in self.times]
-		if self.times == []: return get_user_to(self.send_user_username)[1]['timeline']
+		self.times_from_timeline = get_user_to(self.send_user_username)[1]['timeline']
+		if self.times == []: self.times_from_timeline
 		else:
 			#self.Time_line = [[time_line for timeshits in self.times if timeshits != time_line] for time_line in get_user_to(self.send_user_username)[1]['timeline']]
 			self.check_times=[]
-			self.times_from_timeline = get_user_to(self.send_user_username)[1]['timeline']
 			for time_line in self.times_from_timeline:
 				for line_time in self.times:
 					if time_line == line_time:
 						self.check_times.append(time_line)
 			for time_lines in self.check_times:
 				self.times_from_timeline.remove(time_lines)
-			return self.times_from_timeline
+				
+		return self.times_from_timeline
 
-	def chose_time_to_send(self):
-		print(self.times_from_timeline)
-		self.chose_file = input('chose one time_line: ')
+	def chose_time_to_send(self, chose_file):
+		self.chose_file = chose_file
 		for times in self.times_from_timeline:
 			if self.chose_file == times:
-				self.info = input(f"\033[97m[INFO]\033[00m: time chosed {self.chose_file} is valibel now do you want to rejester? ")
-				if self.info =='':
-					print(f'\033[97m[INFO]: \033[00m OK')
-					return self.chose_file
+				print(f"\033[97m[INFO]\033[00m: time chosed {self.chose_file} is valibel now do you want to rejester? ")
+				print(f'\033[97m[INFO]: \033[00m OK')
+				return self.chose_file
 
 	def send_request_to_user_in_command_line(self):
 		send_request(self.send_user_username, self.user_username, self.chose_file)
 		print(f"\033[97m[INFO]\033[00m: {self.chose_file} is sended to {self.send_user_username}")
 
-
-if __name__ == '__main__':
-	status = send_Request('shayan', 'shayan4')
-	status.check_time_line()
-	#status.chose_time_to_send()
-	#status.send_request_to_user_in_command_line()

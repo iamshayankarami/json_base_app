@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, url_for, redirect, session
 import os, time
-from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOuT, change_ip_add, check_active, login_m, show_requests, send_request, time_line_for_every_day
+from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOuT, change_ip_add, check_active, login_m, show_requests, send_request, time_line_for_every_day, send_Request
 
 app = Flask(__name__)
 app.secret_key = 'shayan-karami-secret-key-for-flask'
@@ -63,10 +63,10 @@ def index():
 		if get_user_to(username)[4]['user_activation'] == 'log-out':
 			return redirect(url_for('login'))
 		#print(check_active(username))
-		#user_poblic_info = get_user_to(username)[1]
+		user_poblic_info = get_user_to(username)[1]
 		user_provate_info = get_user_to(username)[0]
 		user_requests = get_user_to(username)[2]
-		#user_send_requests = get_user_to(username)[3]
+		user_send_requests = get_user_to(username)[3]
 		return f'''<p>main page of {user_provate_info['name']}</p><a href="{url_for('SHOW_ALL')}">show_all</a><br><a href={url_for('logout')}>log out</a><br><b>you have {len(user_requests['requests'])} requests </b><b>{show_requests(username)}</b>'''
 	return render_template('welcome_page.html')
 
@@ -87,8 +87,26 @@ def show_user():
 	if 'username' in session:
 		show_username = request.args.get('show_username', None)
 		username = session['username']
-		sho = ''.join([f'''<option>{times[0]} to {times[1]}</button> <br><br>''' for times in get_user_to(show_username)[1]['timeline']])
-		return f'<select name="times">{sho}</select>'
+		status = send_Request(username, show_username)
+		#times = status.check_time_line()
+		status.check_time_line()
+		timelines = status.check_time_line()
+		if request.method == 'POST':
+			timeset = request.form['timeset']
+			status.chose_time_to_send(timeset)
+			status.send_request_to_user_in_command_line()
+			return redirect(url_for('index'))
+		return f'''
+		<html>
+		<body>
+		<b>{timelines}</b>
+		<form method='POST'>
+		<p>timeset: </p><input type="text" name="timeset">
+		<input type="submit" name="submit">
+		</form>
+		</body>
+		</html>
+		'''
 	return redirect(url_for('index'))
 
 

@@ -1,12 +1,9 @@
 <html>
     <body>
-        <p id=demo></p>
-        <script>
-            var show_all_data = '{{ datas }}';
-            document.getElementById("demo").innerHTML = show_all_data[1:20];
-            //for (var data in show_all_data) {
-            //    document.getElementById("demo").innerHTML = data;
-            //}
-        </script>
+        <p>{{% times %}</p>
+        <form method='POST'>
+            <p>timeset: </p><input type="text" name="timeset">
+            <input type="submit" name="submit">
+        </form>
     </body>
 </html>
