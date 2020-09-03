@@ -4,7 +4,7 @@ import os
 import hashlib
 
 
-json_file_name = 'test3.json'
+json_file_name = '/home/pi/json_files/test3.json'
 
 def get_time():
 	return time.asctime()[11:19]
@@ -20,16 +20,20 @@ def make_password_to_save(password):
 	return hashlib.sha256(password.encode()).hexdigest()
 
 def json_file_status():
-	with open(json_file_name, 'r') as Read:
-		if Read.read() == '':
-			return 'true'
-		else:
-			return 'false'
+	for filename in os.listdir():
+		if filename == json_file_name:
+			send_data.append(filename)
+	if send_data == []:
+		os.mknod(json_file_name)
+	return json_file_name
 
 
 def get_send_data():
-	with open(json_file_name, 'r') as ReaD:
-		send_data = json.load(ReaD)
+	filename = json_file_status()
+	with open(filename, 'r') as Read:
+		if Read.read() == '':
+			send_data = {}
+		else: send_data = json.load(Read)
 	return send_data
 
 
