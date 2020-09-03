@@ -54,7 +54,12 @@ def login():
 				return redirect(url_for('index'))
 			else:
 				return 'wronge password'
-	return render_template('login.html')
+	return '''<center>
+	<form method='POST'>
+		<p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><input type='submit' name='submit' id='submit'>
+	</form>
+</center>
+'''
 
 @app.route('/', methods=["GET", "POST"])
 def index():
@@ -68,7 +73,7 @@ def index():
 		user_requests = get_user_to(username)[2]
 		user_send_requests = get_user_to(username)[3]
 		return f'''<p>main page of {user_provate_info['name']}</p><a href="{url_for('SHOW_ALL')}">show_all</a><br><a href={url_for('logout')}>log out</a><br><b>you have {len(user_requests['requests'])} requests </b><b>{show_requests(username)}</b>'''
-	return render_template('welcome_page.html')
+	return render_template('welcome.php')
 
 
 @app.route('/show_all')
