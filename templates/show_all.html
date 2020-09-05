@@ -1,6 +1,8 @@
-<html>
-<head></head>
-<body>
-
-</body>
-</html>
+<form method="POST" action="{{ url_for('test') }}">
+	<select name="comp_select" class="selectpicker form-control">
+		{% for time in time_line %}
+		<option value="{{ time }}">{{ time }}</option>
+		{% endfor %}
+	</select>
+    <button type="submit">Go</button>
+</form>

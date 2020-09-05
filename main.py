@@ -93,28 +93,9 @@ def show_user():
 		show_username = request.args.get('show_username', None)
 		username = session['username']
 		status = send_Request(username, show_username)
-		#times = status.check_time_line()
-		status.check_time_line()
 		timelines = status.check_time_line()
-		show_timelines = ''.join([f"<a href={url_for('send_request_def', time_to_request=time_t, user_to_send=show_username)}>{time_t}</a><br>" for time_t in timelines])
-		return f'''
-		<html>
-		<body>
-		{show_timelines}
-		</body>
-		</html>'''
+		return render_template('show_all.html', time_line=timelines)
 	return redirect(url_for('index'))
-
-@app.route('/send_request_def')
-def send_request_def():
-	if 'username' in session:
-		show_username, username, time_send = request.args.get('show_username', None), session['username'], request.args.get('time_to_request', None)
-		status = send_Request(username, show_username)
-		status.check_time_line()
-		status.chose_time_to_send(time_send)
-		status.send_request_to_user_in_command_line()
-	return redirect(url_for('index'))
-
 
 @app.route('/logout')
 def logout():
