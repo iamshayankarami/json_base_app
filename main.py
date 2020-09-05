@@ -96,16 +96,11 @@ def show_user():
 		#times = status.check_time_line()
 		status.check_time_line()
 		timelines = status.check_time_line()
-		shwo_timelines = [f"<a href={url_for('send_request_def', time_to_request=time_t, user_to_send=show_username)}>{time_t}</a>" for time_t in timelines]
-		if request.method == 'POST':
-			timeset = request.form['timeset']
-			status.chose_time_to_send(timeset)
-			status.send_request_to_user_in_command_line()
-			return redirect(url_for('index'))
+		show_timelines = ''.join([f"<a href={url_for('send_request_def', time_to_request=time_t, user_to_send=show_username)}>{time_t}</a><br>" for time_t in timelines])
 		return f'''
 		<html>
 		<body>
-		{shwo_timelines}
+		{show_timelines}
 		</body>
 		</html>'''
 	return redirect(url_for('index'))
@@ -113,13 +108,12 @@ def show_user():
 @app.route('/send_request_def')
 def send_request_def():
 	if 'username' in session:
-		show_username = request.args.get('show_username', None)
-		username = session['username']
-		time_send = request.args.get('time_to_request', None)
+		show_username, username, time_send = request.args.get('show_username', None), session['username'], request.args.get('time_to_request', None)
 		status = send_Request(username, show_username)
 		status.check_time_line()
 		status.chose_time_to_send(time_send)
 		status.send_request_to_user_in_command_line()
+	return redirect(url_for('index'))
 
 
 @app.route('/logout')

@@ -4,7 +4,7 @@ import os
 import hashlib
 
 
-json_file_name = 'test1.json'
+json_file_name = '/home/pi/json_files/test3.json'
 
 def get_time():
 	return time.asctime()[11:19]
