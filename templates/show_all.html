@@ -1,5 +1,5 @@
-<form method="POST" action="{{ url_for('test') }}">
-	<select name="comp_select" class="selectpicker form-control">
+<form method="POST">
+	<select name="comp_select">
 		{% for time in time_line %}
 		<option value="{{ time }}">{{ time }}</option>
 		{% endfor %}

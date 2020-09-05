@@ -164,12 +164,14 @@ def send_request(user, from_user, time_to):
 				if user == name:
 					users[name][2]['requests'].append({'request_from': from_user, 'time': time_to})
 				elif from_user == name:
-					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to})
+					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to, 'send_actimvation': 'didnt_seened'})
 	with open(json_file_name, 'w') as write_file:
 		json.dump(send_data, write_file)
 
+def change_get_request_act(username, time_to_del):
+	pass
 
-def sing_in():
+def sing_in_in_command():
 	print('write your private information ["private key"]')
 	name = input('Name: ')
 	username = input('username: ')
@@ -181,7 +183,7 @@ def sing_in():
 	private_data = (name, username, password, timeline, work, location, ip)
 	return private_data
 
-def login():
+def login_in_command():
 	print('login')
 	username = input('username: ')
 	password = make_password_to_save(input('password: '))

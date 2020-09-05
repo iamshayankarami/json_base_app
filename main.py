@@ -94,7 +94,19 @@ def show_user():
 		username = session['username']
 		status = send_Request(username, show_username)
 		timelines = status.check_time_line()
+		if request.method == 'POST':
+			select = request.form.get('select_form_time')
+			status.chose_time_to_send(select)
+			status.send_request_to_user_in_command_line()
+			return redirect(url_for('show_my_send_requests'))
 		return render_template('show_all.html', time_line=timelines)
+	return redirect(url_for('index'))
+
+@app.route('/show_my_send_requests')
+def show_my_send_requests():
+	if 'username' in session:
+		all_of_my_request = get_user_to(session['username'])[3]
+		return all_of_my_request
 	return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -107,4 +119,4 @@ def logout():
 	return redirect(url_for('index'))
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', debug=True)
+app.run(host='0.0.0.0', debug=True)
