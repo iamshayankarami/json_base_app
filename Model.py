@@ -168,8 +168,26 @@ def send_request(user, from_user, time_to):
 	with open(json_file_name, 'w') as write_file:
 		json.dump(send_data, write_file)
 
-def change_get_request_act(username, time_to_del):
-	pass
+def change_get_request_act(username, time_to_del, change_to):
+	send_data = get_send_data()
+	for citi in send_data:
+		for users in send_data[citi]:
+			for name in users:
+				if name==username:
+					for times in get_user_to(name)[3]['send_requests']:
+						if times['time'] == time_to_del:
+							if change_to == 'chancel':
+								times['send_actimvation'] = change_to
+
+def check_new_requests(username):
+	send_data = get_user_to(username)
+	for citi in send_data:
+		for users in send_data[citi]:
+			for name in users:
+				if users==username:
+					for times in get_user_to(name)[4]['my_requests']:
+						if times['time']==time_to_del:
+
 
 def sing_in_in_command():
 	print('write your private information ["private key"]')
@@ -238,4 +256,3 @@ class send_Request:
 	def send_request_to_user_in_command_line(self):
 		send_request(self.send_user_username, self.user_username, self.chose_file)
 		print(f"\033[97m[INFO]\033[00m: {self.chose_file} is sended to {self.send_user_username}")
-
