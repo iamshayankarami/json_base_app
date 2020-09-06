@@ -19,10 +19,17 @@ def __check_num(Time):
 def make_password_to_save(password):
 	return hashlib.sha256(password.encode()).hexdigest()
 
+def json_file_status():
+	with open(json_file_name, 'r') as Read:
+		if Read.read() == '':
+			return 'true'
+		else:
+			return 'false'
+
 
 def get_send_data():
-	with open(json_file_name, 'r') as Read:
-		send_data = json.load(Read)
+	with open(json_file_name, 'r') as ReaD:
+		send_data = json.load(ReaD)
 	return send_data
 
 
@@ -164,32 +171,12 @@ def send_request(user, from_user, time_to):
 				if user == name:
 					users[name][2]['requests'].append({'request_from': from_user, 'time': time_to})
 				elif from_user == name:
-					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to, 'send_actimvation': 'didnt_seened'})
+					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to})
 	with open(json_file_name, 'w') as write_file:
 		json.dump(send_data, write_file)
 
-def change_get_request_act(username, time_to_del, change_to):
-	send_data = get_send_data()
-	for citi in send_data:
-		for users in send_data[citi]:
-			for name in users:
-				if name==username:
-					for times in get_user_to(name)[3]['send_requests']:
-						if times['time'] == time_to_del:
-							if change_to == 'chancel':
-								times['send_actimvation'] = change_to
 
-def check_new_requests(username):
-	send_data = get_user_to(username)
-	for citi in send_data:
-		for users in send_data[citi]:
-			for name in users:
-				if users==username:
-					for times in get_user_to(name)[4]['my_requests']:
-						if times['time']==time_to_del:
-
-
-def sing_in_in_command():
+def sing_in():
 	print('write your private information ["private key"]')
 	name = input('Name: ')
 	username = input('username: ')
@@ -201,7 +188,7 @@ def sing_in_in_command():
 	private_data = (name, username, password, timeline, work, location, ip)
 	return private_data
 
-def login_in_command():
+def login():
 	print('login')
 	username = input('username: ')
 	password = make_password_to_save(input('password: '))
