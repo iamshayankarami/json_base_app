@@ -4,7 +4,7 @@ import os
 import hashlib
 
 
-json_file_name = '/home/pi/json_files/test3.json'
+json_file_name = '/home/pi/json_files/test2.json'
 
 def get_time():
 	return time.asctime()[11:19]
@@ -103,9 +103,9 @@ def delete_user(username):
 				if username == name:
 					send_data[citi].remove(user)
 
-def add_request(send_user, user_name, request_thing, time_loc):
+def add_request(send_user, user_name, time_loc):
 	send_data = get_send_data()
-	return_data = {'request_from': user_name, 'request_send_time': time_loc, 'request_thing': request_thing, 'request_status': 'sended_request'}
+	return_data = {'request_from': user_name, 'time': time_loc, 'request_status': 'sended_request'}
 
 	for citi in send_data:
 		for user in send_data[citi]:
@@ -117,7 +117,7 @@ def add_request(send_user, user_name, request_thing, time_loc):
 		for user in send_data[citi]:
 			for name in user:
 				if send_user == name:
-					user[name][3]['send_requests'].append({'request_to': send_user, 'request_send_time': time_loc, 'request_thing': request_thing, 'request_status': 'sended_request'})
+					user[name][3]['send_requests'].append({'request_to': send_user, 'time': time_loc, 'request_status': 'sended_request'})
 	with open(json_file_name, 'w') as write_file:
 		json.dump(send_data, write_file)
 
@@ -169,9 +169,9 @@ def send_request(user, from_user, time_to):
 		for users in send_data[citi]:
 			for name in users:
 				if user == name:
-					users[name][2]['requests'].append({'request_from': from_user, 'time': time_to})
+					users[name][2]['requests'].append({'request_from': from_user, 'time': time_to, 'request_activ': 'request_sended'})
 				elif from_user == name:
-					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to})
+					users[name][3]['send_requests'].append({'request_to': user, 'time': time_to, 'request_activ': 'request_sended'})
 	with open(json_file_name, 'w') as write_file:
 		json.dump(send_data, write_file)
 
@@ -243,3 +243,19 @@ class send_Request:
 	def send_request_to_user_in_command_line(self):
 		send_request(self.send_user_username, self.user_username, self.chose_file)
 		print(f"\033[97m[INFO]\033[00m: {self.chose_file} is sended to {self.send_user_username}")
+
+def change_requets_act(username, time_line, change_to):
+	send_data = get_send_data()
+	for citi in send_data:
+		for name in send_data[citi]:
+			if name==username:
+				for times in get_user_to(name)[3]['send_requests']:
+					if times['time'] == time_line:
+						show_user = times['request_status']
+						times['request_arc'] = change_to
+			elif name==show_user:
+				for times in get_user_to(name)[2]['requests']:
+					if times['time']==time_line:
+						times['request_status'] = change_to
+	with open(json_file_name, 'w') as Write_file:
+		json.dump(send_data)

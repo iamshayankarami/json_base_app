@@ -108,7 +108,7 @@ def show_my_send_requests():
 		all_of_my_request = get_user_to(session['username'])[3]['send_requests']
 		send_text = []
 		for re in all_of_my_request:
-			send_text.append(f"{re['request_to']} {re['time']}")
+			send_text.append(f"{re['request_to']} {re['time']} {re['request_activ']}")
 		return render_template('show_my_sends_requets.html', data=send_text)
 	return redirect(url_for('index'))
 
