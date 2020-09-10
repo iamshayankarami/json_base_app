@@ -17,7 +17,7 @@ def find_file():
 	for filename in os.listdir():
 		data = filename.split('.')
 		if len(data) >= 2:
-			if data[1] == 'db': return data[0]+'.db'
+			if data[1] == 'db': return data['name']+'.db'
 
 
 @app.route('/singin', methods=["GET", "POST"])

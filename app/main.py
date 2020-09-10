@@ -1,4 +1,6 @@
-import kivy, json, os
+import kivy, json, os, sys
+sys.path.insert(1, '/home/shayan/Desktop/json_base_app')
+from Model import make_password_to_save, json_singin, get_user_to, LOGIN
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
@@ -13,6 +15,8 @@ def check_the_inputs(input_data):
 		elif parts == 'timeline':
 			if len(input_data[parts].split('/')) != 3:
 				return "ERROR"
+		elif input_data[parts] == ' ':
+			return "ERROR"
 
 class singin(GridLayout):
 	def __init__(self, **kwargs):
@@ -49,10 +53,10 @@ class singin(GridLayout):
 		self.add_widget(self.Sing_in)
 
 	def sing_in(self, instance):
-		self.return_data={'name': self.name.text, 'username': self.username.text, 'password': self.password.text, 'work': self.work.text, 'timeline': self.timeline.text, 'location': self.location.text}
+		self.return_data={'name': self.name.text, 'username': self.username.text, 'password': make_password_to_save(self.password.text), 'work': self.work.text, 'timeline': self.timeline.text, 'location': self.location.text}
 		push_data=self.return_data
 		if check_the_inputs(push_data) == None:
-			print(push_data)
+			json_singin(push_data)
 		else: print(check_the_inputs(push_data))
 
 class login(GridLayout):
@@ -70,12 +74,14 @@ class login(GridLayout):
 
 		self.logiN = Button(text="Login")
 		self.logiN.bind(on_press=self.Login)
-		self.add_widget(Label())
 		self.add_widget(self.logiN)
 
 	def Login(self, instance):
-		self.push_data={'password': self.password.text}
-		print(self.push_data)
+		self.push_data={'username': self.username.text, 'password': self.password.text}
+		if check_the_inputs(self.push_data) == None:
+			self.push_data={'username': self.username.text, 'password': make_password_to_save(self.password.text)}
+			print(self.push_data)
+		else: print(check_the_inputs(self.push_data))
 
 class mainPage(GridLayout):
 	def __init__(self, **kwargs):

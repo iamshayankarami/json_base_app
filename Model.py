@@ -35,16 +35,16 @@ def get_send_data():
 
 def json_singin(data):
 	send_data = get_send_data()
-	location = data[5].split('/')[0]
+	location = data['location'].split('/')[0]
 	geuss = [table for table in send_data if table == location]
 	data_send_json = {}
-	data_send_json[data[1]] = []
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': time_line_for_every_day(data[3]), 'work': data[4], 'location': data[5], 'ip': data[6]})
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': time_line_for_every_day(data[3]), 'work': data[4], 'location': data[5]})
-	data_send_json[data[1]].append({'requests': []})
-	data_send_json[data[1]].append({'send_requests': []})
-	data_send_json[data[1]].append({'user_activation': 'log-in'})
-	#data_send_json[data[1]].append({'time_line': time_line_for_every_day(data[3].split('/'))})
+	data_send_json[data['username']] = []
+	data_send_json[data['username']].append({'name': data['name'], 'username': data['username'], 'password': data['password'], 'timeline': time_line_for_every_day(data['timeline']), 'work': data['work'], 'location': data['location']})
+	data_send_json[data['username']].append({'name': data['name'], 'username': data['username'], 'timeline': time_line_for_every_day(data['timeline']), 'work': data['work'], 'location': data['location']})
+	data_send_json[data['username']].append({'requests': []})
+	data_send_json[data['username']].append({'send_requests': []})
+	data_send_json[data['username']].append({'user_activation': 'log-in'})
+	#data_send_json[data['username]].append({'time_line': time_line_for_every_day(data['timeline'].split('/'))})
 	if geuss == []:
 		send_data[location] = []
 		send_data[location].append(data_send_json)
@@ -53,8 +53,14 @@ def json_singin(data):
 	with open(json_file_name, 'w') as write:
 		json.dump(send_data, write)
 
-def get_time_range_of_user():
-	pass
+def Longin(push_data):
+	if get_user_to(push_data['username'])[0] == []:
+		print('user not found')
+	else:
+		if push_data['password'] == get_user_to(push_data['username'])[0]['password']:
+			login_m(push_data['username'])
+		else:
+			print('wronge password')
 
 def change_ip_add(username, ip_add):
 	send_data = get_send_data()
