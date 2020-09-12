@@ -1,6 +1,6 @@
 import kivy, json, os, sys
 sys.path.insert(1, '/home/shayan/Desktop/json_base_app')
-from Model import make_password_to_save, json_singin, get_user_to, LOGIN
+from Model import make_password_to_save, json_singin, get_user_to
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
@@ -81,7 +81,9 @@ class login(GridLayout):
 		if check_the_inputs(self.push_data) == None:
 			self.push_data={'username': self.username.text, 'password': make_password_to_save(self.password.text)}
 			print(self.push_data)
-		else: print(check_the_inputs(self.push_data))
+		else:
+			print(check_the_inputs(self.push_data))
+			Main.screen_manager.current = 'main'
 
 class mainPage(GridLayout):
 	def __init__(self, **kwargs):
@@ -89,7 +91,17 @@ class mainPage(GridLayout):
 
 class Main(App):
 	def build(self):
-		return login()
+		self.screen_manager = ScreenManager()
+		self.login_page = login()
+		self.singin_page = singin()
+		screen = Screen(name='Login')
+		screen.add_widget(self.login_page)
+		self.screen_manager.add_widget(screen)
+
+		screen = Screen(name='main')
+		screen.add_widget(self.singin_page)
+		self.screen_manager.add_widget(screen)
+		return self.screen_manager
 
 if __name__ == '__main__':
 	Main().run()
