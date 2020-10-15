@@ -1,7 +1,15 @@
 <html>
-<body>
-{% for request in data %}
-<p>{{ request }}</p><input type='submit' name='change_request_active', value='cancel'><br>
-{% endfor %}
-</body>
+<script>
+function cencel_rej(user_name) {
+	window.alert( user_name);
+}
+</script>
+<center>
+<form method='POST'>
+	<p>ok if you want to cencel the request you can click the cencel button, but if the user seend it you cant</p>
+	{% for n in data %}
+	{{ n[0] }} {% if n[1] != "seend" %}<button name="some" value="{{ n[0] }}">cencel</button>{% else %}user accepted the request{% endif %}<br><br>
+	{% endfor %}
+</form>
+</center>
 </html>

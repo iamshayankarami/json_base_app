@@ -19,4 +19,4 @@ this app is a app to find best stores to buy and can be reserving from the app a
 - [x] make a green color for the times that is valibel and red for the times those are regesterd by someone else, and blue for the times that regesters by user
 - [x] remove the last houre minets by remove +1
 
-# I'am Shayan Karami, I'am a programmer, I LOVE CODING.
+# I'am Shayan Karami, I'am a programmer, I LOVE PROGRAMMING, I LOVE CODING.

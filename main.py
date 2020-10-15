@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, url_for, redirect, session
 import os, time
-from Model import make_password_to_save, json_singin, get_send_data, get_user_to, get_user_info_by_device_ip_add, show_all_users_poblic_data_in_user_location, LogOuT, change_ip_add, check_active, login_m, show_requests, send_request, time_line_for_every_day, send_Request
+from Back_end_main_service import *
 
 app = Flask(__name__)
 app.secret_key = 'shayan-karami-secret-key-for-flask'
@@ -13,29 +13,22 @@ def __check_num(Time):
 	return Time[0:2]
 
 
-def find_file():
-	for filename in os.listdir():
-		data = filename.split('.')
-		if len(data) >= 2:
-			if data[1] == 'db': return data['name']+'.db'
-
-
 @app.route('/singin', methods=["GET", "POST"])
 def singin():
-	ip_add = request.remote_addr
-	if request.method == 'POST':
-		name = request.form["name"]
-		work = request.form["work"]
-		password = make_password_to_save(request.form["password"])
-		username = request.form["username"]
-		timeline = request.form["timeline"]
-		location = request.form["location"]
-		push_data = (name, username, password, timeline, work, location, ip_add)
-		json_singin(push_data)
-		session['username']=username
-		return redirect(url_for('index'))
-	#return render_template("singin.html")
-	return '''<center><form method='POST'><p>name</p><input type='text' name='name'><br><p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><p>work</p><input type='text' name='work'><br><p>timeline</p><input type='text' name='timeline'><br><p>location</p><input type='text' name='location'><br><input type='submit' name='submit' id='submit'></form></center>'''
+    ip_add = request.remote_addr
+    if request.method == 'POST':
+        name = request.form["name"]
+        work = request.form["work"]
+        password = make_password_to_save(request.form["password"])
+        username = request.form["username"]
+        timeline = request.form["timeline"]
+        location = request.form["location"]
+        push_data=[name, username, password, timeline, location, work, ip_add]
+        json_singin(push_data)
+        session['username']=username
+        return redirect(url_for('index'))
+    #return render_template("singin.html")
+    return '''<center><form method='POST'><p>name</p><input type='text' name='name'><br><p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><p>work</p><input type='text' name='work'><br><p>timeline</p><input type='text' name='timeline'><br><p>location</p><input type='text' name='location'><br><input type='submit' name='submit' id='submit'></form></center>'''
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -102,15 +95,15 @@ def show_user():
 		return render_template('show_all.html', time_line=timelines)
 	return redirect(url_for('index'))
 
-@app.route('/show_my_send_requests')
+@app.route('/show_my_send_requests', methods=['POST', 'GET'])
 def show_my_send_requests():
-	if 'username' in session:
-		all_of_my_request = get_user_to(session['username'])[3]['send_requests']
-		send_text = []
-		for re in all_of_my_request:
-			send_text.append(f"{re['request_to']} {re['time']} {re['request_activ']}")
-		return render_template('show_my_sends_requets.html', data=send_text)
-	return redirect(url_for('index'))
+    if 'username' in session:
+        all_of_my_request = get_user_to(session['username'])[3]['send_requests']
+        send_text = []
+        for re in all_of_my_request:
+            send_text.append([f"{re['request_to']} {re['time']} {re['request_activ']}", make_password_to_save(f"{re['request_to']} {re['time']} {re['request_from']}")])
+        return render_template('show_my_sends_requets.html', data=send_text)
+    return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
@@ -121,5 +114,17 @@ def logout():
 		return redirect(url_for('index'))
 	return redirect(url_for('index'))
 
+@app.route('/test_from_here', methods=['POST', 'GET'])
+def TEST_FUTERS():
+    if request.method == 'POST':
+        print(request.form['some'])
+    return render_template('add_new_product.html')
+
+@app.route('/add_new_product', methods=['POST', 'GET'])
+def add_new_product():
+	if request.method == 'POST':
+		new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+		print(new_product)
+	return render_template('add_new_product.html')
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', debug=True)
+	app.run(host='0.0.0.0', port=4000 , debug=True)
