@@ -119,8 +119,12 @@ def logout():
 @app.route('/add_new_product', methods=['POST', 'GET'])
 def add_new_product():
 	if request.method == 'POST':
-		new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_img': request.form['product_img'], 'product_activ': 'new_product'}
-		print(new_product)
+		new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+                product_address = make_password_to_save(''.join([parts for parts in new_product]))
+                File = request.file['PRO_IMG']
+                if FILE and check_img_formath(FILE.filename):
+                    filename = product_address + FILE.filename.rsplit('.')[1].lower()
+                    FILE.save(os.path.join(app.config['UPLOAD_PRODUCT_IMG'], filename))
 	return render_template('add_new_product.html')
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=4000 , debug=True)
