@@ -114,16 +114,10 @@ def logout():
 		return redirect(url_for('index'))
 	return redirect(url_for('index'))
 
-@app.route('/test_from_here', methods=['POST', 'GET'])
-def TEST_FUTERS():
-    if request.method == 'POST':
-        print(request.form['some'])
-    return render_template('add_new_product.html')
-
 @app.route('/add_new_product', methods=['POST', 'GET'])
 def add_new_product():
 	if request.method == 'POST':
-		new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+		new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_img': request.form['product_img'], 'product_activ': 'new_product'}
 		print(new_product)
 	return render_template('add_new_product.html')
 if __name__ == '__main__':
