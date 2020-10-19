@@ -4,14 +4,16 @@ from Back_end_main_service import *
 
 app = Flask(__name__)
 app.secret_key = 'shayan-karami-secret-key-for-flask'
-
+app.config['UPLOAD_PRODUCT_IMG'] = "/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG"
+app.config['IMG_LENGHT'] = 16*1024*1024
 
 def get_time():
 	return time.asctime()[11:19]
 
 def __check_num(Time):
 	return Time[0:2]
-
+def check_img_formath(filename):
+    return '.' in filename and filename.rsplit(filename)[1].lower() in set(['jpg', 'png', 'jpeg'])
 
 @app.route('/singin', methods=["GET", "POST"])
 def singin():
