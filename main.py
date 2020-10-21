@@ -1,19 +1,19 @@
-from flask import Flask, request, render_template, url_for, redirect, session
+from flask import Flask, request, render_template, url_for, redirect, session, flash
 import os, time
+import urllib.request
 from Back_end_main_service import *
 
 app = Flask(__name__)
 app.secret_key = 'shayan-karami-secret-key-for-flask'
-app.config['UPLOAD_PRODUCT_IMG'] = "/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG"
-app.config['IMG_LENGHT'] = 16*1024*1024
 
 def get_time():
 	return time.asctime()[11:19]
 
 def __check_num(Time):
 	return Time[0:2]
+
 def check_img_formath(filename):
-    return '.' in filename and filename.rsplit(filename)[1].lower() in set(['jpg', 'png', 'jpeg'])
+    return '.' in filename and filename.rsplit('.')[1].lower() in set(['jpg', 'png', 'jpeg'])
 
 @app.route('/singin', methods=["GET", "POST"])
 def singin():
@@ -29,9 +29,7 @@ def singin():
         json_singin(push_data)
         session['username']=username
         return redirect(url_for('index'))
-    #return render_template("singin.html")
-    return '''<center><form method='POST'><p>name</p><input type='text' name='name'><br><p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><p>work</p><input type='text' name='work'><br><p>timeline</p><input type='text' name='timeline'><br><p>location</p><input type='text' name='location'><br><input type='submit' name='submit' id='submit'></form></center>'''
-
+    return render_template("singin.html")
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -56,19 +54,22 @@ def login():
 </center>
 '''
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/profile', methods=["GET", "POST"])
 def index():
-	if 'username' in session:
-		username = session['username']
-		if get_user_to(username)[4]['user_activation'] == 'log-out':
-			return redirect(url_for('login'))
-		#print(check_active(username))
-		user_poblic_info = get_user_to(username)[1]
-		user_provate_info = get_user_to(username)[0]
-		user_requests = get_user_to(username)[2]
-		user_send_requests = get_user_to(username)[3]
-		return f'''<p>main page of {user_provate_info['name']}</p><a href="{url_for('SHOW_ALL')}">show_all</a><br><a href={url_for('logout')}>log out</a><br><b>you have {len(user_requests['requests'])} requests </b><b>{show_requests(username)}</b>'''
-	return render_template('welcome.php')
+    if 'username' in session:
+        username = session['username']
+        if get_user_to(username)[4]['user_activation'] == 'log-out':
+            return redirect(url_for('login'))
+        #print(check_active(username))
+        user_requests = get_user_to(username)[2]
+        requets_number=len(user_requests['requests'])
+        Requests = show_requests(username)
+        if request.method == 'POST':
+            ACSS = request.form['ACS']
+            #change_requets_act(ACSS.split('-')[0], ACSS.split('-')[1])
+
+        return render_template("profile.html", username=username, requets_number=requets_number, Requests=Requests)
+    return render_template('welcome.php')
 
 
 @app.route('/show_all')
@@ -118,13 +119,20 @@ def logout():
 
 @app.route('/add_new_product', methods=['POST', 'GET'])
 def add_new_product():
-	if request.method == 'POST':
-		new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
-                product_address = make_password_to_save(''.join([parts for parts in new_product]))
-                File = request.file['PRO_IMG']
-                if FILE and check_img_formath(FILE.filename):
-                    filename = product_address + FILE.filename.rsplit('.')[1].lower()
-                    FILE.save(os.path.join(app.config['UPLOAD_PRODUCT_IMG'], filename))
-	return render_template('add_new_product.html')
+    if request.method == 'POST':
+        new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+        product_address = make_password_to_save(''.join([parts for parts in new_product]))
+        File = request.files['file']
+        if File and check_img_formath(File.filename):
+            filename = product_address + ".jpeg"
+            File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+            product_address['product_image'] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
+    return render_template('add_new_product.html')
+@app.route('/', methods=['POST', 'GET'])
+def main_page():
+    if 'username' in session:
+        len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
+        return render_template('main_show_page.html', LUGR=len_user_gets_requests)
+    return render_template('welcome.php')
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=4000 , debug=True)
+	app.run(port=4000, debug=True)

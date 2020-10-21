@@ -2,11 +2,11 @@
 <body>
 	<center>
 		<p>if you want to add a new product</p>
-		<form method="POST">
+		<form method="POST" enctype="multipart/form-data">
 		<p>product's Name: </p><input type="text" name="product_name"><br>
 		<p>product's cpacity(kg or count): </p><input type="text" name="product_cpacity"><br>
 		<p>product's price: </p><input type="text" name="product_price"><br>
-		<p>choice a picture for product: </p><input type="file" name="product_img"><br>
+		<p>choice a picture for product: </p><input type="file" name="file" autocomplete="off" required><br>
 		<input type="submit" name="submit">
 		</form>
 	</center>

@@ -1,0 +1,17 @@
+<center>
+<form method='POST'>
+<p>name</p><input type='text' name='name'><br>
+<p>username</p><input type='text', name='username'><br>
+<p>password</p><input type='password' name='password'><br>
+<p>work</p><input type='text' name='work'><br><br>
+<button name="product_proper" value="product_proper">sell product</button> <button onclick="test_fun()">sell reserv</button>
+<p id="check"></p>
+<p>location</p><input type='text' name='location'><br>
+</form>
+<script>
+function test_fun() {
+	var text = "<p>timeline</p><input type='text' name='timeline'><br>"
+	document.getElementById("check").innerHTML = text;
+}
+</script>
+</center>

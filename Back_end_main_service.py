@@ -1,12 +1,8 @@
-import time
-import json
-import os
-import hashlib
-
+import time, json, os, hashlib
 
 def find_main_json_filename():
     main_json_file=[]
-    for filename in os.listdir('/Users/shayan/Desktop/json_base_app'):
+    for filename in os.listdir():
         if filename.find('.json') != -1:
             main_json_file.append(filename)
     if len(main_json_file) > 1:
@@ -17,6 +13,7 @@ def chack_and_coloect_the_json_filename(json_filename):
     with open(json_filename, 'r') as Read_file:
             return_json_file = json.load(Read_file)
     return return_json_file
+    #return {}
 
 def find_the_send_requests_and_cahnge_the_activation():
     pass
@@ -34,24 +31,25 @@ def make_password_to_save(password):
 	return hashlib.sha256(password.encode()).hexdigest()
 
 def json_singin(data):
-	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-	location = data[4].split('/')[0]
-	geuss = [table for table in send_data if table == location]
-	data_send_json = {}
-	data_send_json[data[1]] = []
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': time_line_for_every_day(data[3]), 'work': data[5], 'location': data[4]})
-	data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': time_line_for_every_day(data[3]), 'work': data[5], 'location': data[4]})
-	data_send_json[data[1]].append({'requests': []})
-	data_send_json[data[1]].append({'send_requests': []})
-	data_send_json[data[1]].append({'user_activation': 'log-in'})
-	#data_send_json[data['username]].append({'time_line': time_line_for_every_day(data['timeline'].split('/'))})
-	if geuss == []:
-		send_data[location] = []
-		send_data[location].append(data_send_json)
-	else:
-		send_data[geuss[0]].append(data_send_json)
-	with open(find_main_json_filename(), 'w') as write:
-		json.dump(send_data, write)
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    location = data[4].split('/')[0]
+    geuss = [table for table in send_data if table == location]
+    data_send_json = {}
+    data_send_json[data[1]] = []
+    data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': time_line_for_every_day(data[3]), 'work': data[5], 'location': data[4]})
+    data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': time_line_for_every_day(data[3]), 'work': data[5], 'location': data[4]})
+    data_send_json[data[1]].append({'requests': []})
+    data_send_json[data[1]].append({'send_requests': []})
+    data_send_json[data[1]].append({'user_activation': 'log-in'})
+    data_send_json[data[1]].append({'user_products': []})
+    #data_send_json[data['username]].append({'time_line': time_line_for_every_day(data['timeline'].split('/'))})
+    if geuss == []:
+        send_data[location] = []
+        send_data[location].append(data_send_json)
+    else:
+        send_data[geuss[0]].append(data_send_json)
+    with open(find_main_json_filename(), 'w') as write:
+        json.dump(send_data, write)
 
 def Longin(push_data):
 	if get_user_to(push_data['username'])[0] == []:
@@ -234,19 +232,28 @@ class send_Request:
         return self.profile
     def send_request_to_user_in_command_line(self):
         send_request(self.profile)
-        print(f"\033[97m[INFO]\033[00m: {self.chose_file} is sended to {self.send_user_username}")
+        print(f"\033[97m[INFO]\033[00m: {self.profile[6]} is sended to {self.send_user_username}")
 
-def change_requets_act(send_username, request_address, get_username, change_act_val):
-	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-	for citi in send_data:
-		for name in send_data[citi]:
-			if name==send_username:
-				for request in get_user_to(name)[3]['send_requests']:
-					if request['request_address'] == request_address:
-						request['request_activ'] = change_act_val
-			elif name==get_username:
-				for request in get_user_to(name)[2]['requests']:
-					if request['request_address'] == request_address:
-						request['request_activ'] = change_act_val
-	with open(find_main_json_filename(), 'w') as write_file:
-		json.dump(write_file, send_data)
+def change_requets_act(username, request_address, change_act_val):
+    request_profile=[F for F in get_user_to(username)[3]['send_requests'] if F['request_address'] == request_address][0]
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    for citi in send_data:
+        for name in send_data[citi]:
+            if name==send_username:
+                for request in get_user_to(name)[3]['send_requests']:
+                    if request['request_address'] == request_address:
+                        request['request_activ'] = change_act_val
+            elif name==get_username:
+                for request in get_user_to(name)[2]['requests']:
+                    if request['request_address'] == request_address:
+                        request['request_activ'] = change_act_val
+    with open(find_main_json_filename(), 'w') as write_file:
+        json.dump(write_file, send_data)
+
+def show_all_products_and_reservs_in_user_citi(user_citi, username):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    return_data=[]
+    for user in send_data[user_citi]:
+        if user[1]['username'] != username:
+            return_data.append(user[5])
+    return return_data
