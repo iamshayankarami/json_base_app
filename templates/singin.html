@@ -2,16 +2,16 @@
 <form method='POST'>
 <p>name</p><input type='text' name='name'><br>
 <p>username</p><input type='text', name='username'><br>
+<p>Email</p><input type="text" name="email"><br>
 <p>password</p><input type='password' name='password'><br>
 <p>work</p><input type='text' name='work'><br><br>
-<button name="product_proper" value="product_proper">sell product</button> <button onclick="test_fun()">sell reserv</button>
-<p id="check"></p>
+<label for="check_product">sell product:</label>
+<input type="checkbox" name="job_product" value="sell_product">
+<label for"check_reserv">sell reserv time:</label>
+<input type="checkbox" name="job_product" value="sell_reserv_time">
+<label for="check_reserv">both: </label>
+<input type="checkbox" name="job_product" value="sell_both">
 <p>location</p><input type='text' name='location'><br>
+<input type="submit" name="Submit">
 </form>
-<script>
-function test_fun() {
-	var text = "<p>timeline</p><input type='text' name='timeline'><br>"
-	document.getElementById("check").innerHTML = text;
-}
-</script>
 </center>

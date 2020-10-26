@@ -1,0 +1,23 @@
+<center>
+	<form method="POST" enctype="multipart/form-data">
+	{% if main_data["product_or_time_reservs"] == "sell_both" or main_data["product_or_time_reservs"] == "sell_reserv_time" %}
+		<p>programming</p>
+		<div id="customize">
+			<label>colect your timeline</label>
+			<input type="input" name="timeline"><br><br>
+			{% if main_data["product_or_time_reservs"] == "sell_reserv_time" %}
+				<input type="submit" name="submit">
+				</form>
+			{% endif %}
+	{% endif %}
+	{% if main_data["product_or_time_reservs"] == "sell_both" or main_data["product_or_time_reservs"] == "sell_product" %}
+		<p> be st programmer</p>
+			<label>product's Name: </label><input type="text" name="product_name"><br><br>
+			<label>product's cpacity(kg or count): </label><input type="text" name="product_cpacity"><br><br>
+			<label>product's price: </label><input type="text" name="product_price"><br><br>
+			<label>choice a picture for product: </label><input type="file" name="file" autocomplete="off" required><br><br>
+			<input type="submit" name="submit">
+			</form>
+		</div>
+	{% endif %}
+</center>

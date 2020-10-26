@@ -1,6 +1,6 @@
 import kivy, json, os, sys
 sys.path.insert(1, '/home/shayan/Desktop/json_base_app')
-from Model import make_password_to_save, json_singin, get_user_to
+#from Model import make_password_to_save, json_singin, get_user_to
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout

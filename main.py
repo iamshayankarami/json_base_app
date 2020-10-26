@@ -15,6 +15,37 @@ def __check_num(Time):
 def check_img_formath(filename):
     return '.' in filename and filename.rsplit('.')[1].lower() in set(['jpg', 'png', 'jpeg'])
 
+@app.route('/', methods=['POST', 'GET'])
+    def main_page():
+        if 'username' in session:
+            len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
+            return render_template('main_show_page.html', LUGR=len_user_gets_requests)
+        return render_template('welcome.php')
+
+@app.route('/profile', methods=["GET", "POST"])
+    def index():
+        if 'username' in session:
+            username = session['username']
+            if get_user_to(username)[4]['user_activation'] == 'log-out':
+                return redirect(url_for('login'))
+            #print(check_active(username))
+            user_requests = get_user_to(username)[2]
+            requets_number=len(user_requests['requests'])
+            Requests = show_requests(username)
+            if request.method == 'POST':
+                ACSS = request.form['ACS']
+                print(ACSS)
+                #change_requets_act(ACSS.split('-')[0], ACSS.split('-')[1])
+                return render_template("profile.html", username=username, requets_number=requets_number, Requests=Requests)
+        return render_template('welcome.php')
+
+@app.route('/check_profile_type', methods=['POST', 'GET'])
+def check_profile_type():
+    if request.method == 'POST':
+        if request.form['profile_type'] == "bussines":
+            return redirect(url_for("test_in_here", user_profile_type="bussines"))
+    return render_template("check_profile_type.html")
+
 @app.route('/singin', methods=["GET", "POST"])
 def singin():
     ip_add = request.remote_addr
@@ -54,22 +85,7 @@ def login():
 </center>
 '''
 
-@app.route('/profile', methods=["GET", "POST"])
-def index():
-    if 'username' in session:
-        username = session['username']
-        if get_user_to(username)[4]['user_activation'] == 'log-out':
-            return redirect(url_for('login'))
-        #print(check_active(username))
-        user_requests = get_user_to(username)[2]
-        requets_number=len(user_requests['requests'])
-        Requests = show_requests(username)
-        if request.method == 'POST':
-            ACSS = request.form['ACS']
-            #change_requets_act(ACSS.split('-')[0], ACSS.split('-')[1])
 
-        return render_template("profile.html", username=username, requets_number=requets_number, Requests=Requests)
-    return render_template('welcome.php')
 
 
 @app.route('/show_all')
@@ -128,11 +144,52 @@ def add_new_product():
             File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
             product_address['product_image'] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
     return render_template('add_new_product.html')
-@app.route('/', methods=['POST', 'GET'])
-def main_page():
-    if 'username' in session:
-        len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
-        return render_template('main_show_page.html', LUGR=len_user_gets_requests)
-    return render_template('welcome.php')
+
+
+
+@app.route('/test_form', methods=['GET', 'POST'])
+def test_in_here():
+    if request.method == 'POST':
+        return_data = {"name": request.form["name"], "email": request.form["email"], "username": request.form["username"], "password": make_password_to_save(request.form["password"]), "work": request.form["work"], "product_or_time_reservs": request.form['job_product'], "location": request.form["location"]}
+        if return_data["product_or_time_reservs"] == "sell_product":
+            #json_singin(return_data)
+            pass
+        print(return_data)
+        session["username"] = request.form["username"]
+        session["main_return_data"] = return_data
+        #return redirect(url_for("test_set_time_line"))
+    return render_template('singin.html')
+@app.route('/test_form/set_time_line', methods=['POST', 'GET'])
+def test_set_time_line():
+    if "username" in session:
+        main_data = session["main_return_data"]
+        if request.method == 'POST':
+            if main_data["product_or_time_reservs"] == "sell_reserv_time":
+                timeline = time_line_for_every_day(request.form["timeline"])
+                main_data["product_or_time_reservs"] = timeline
+                print(main_data)
+            if main_data["product_or_time_reservs"] == "sell_both" or main_data["product_or_time_reservs"] == "sell_product":
+                new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+                product_address = make_password_to_save(''.join([parts for parts in new_product]))
+                new_product["product_address"] = product_address
+                File = request.files['file']
+                if File and check_img_formath(File.filename):
+                    filename = product_address + ".jpeg"
+                    File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                    new_product['product_image'] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
+                if main_data["product_or_time_reservs"] == "sell_both":
+                    main_data = {"name": request.form["name"], "username": request.form["username"], "password": make_password_to_save(request.form["password"]), "work": request.form["work"], "product_or_time_reservs": request.form['job_product'], "reserv_timeline": time_line_for_every_day(request.form["timeline"])}
+                    #json_singin(main_data)
+                    add_Request(session["username"], new_product)
+                    return redirect(url_for("CUSTOM_TIMES"))
+                return redirect(url_for("main"))
+        return render_template("customize_selling.html", main_data=main_data)
+
+@app.route('/custom_times', methods=['POST', 'GET'])
+def CUSTOM_TIMES():
+    if request.method == 'POST':
+        for part in request.form:
+            print(part)
+    return render_template('custom_times.html')
 if __name__ == '__main__':
-	app.run(port=4000, debug=True)
+	app.run("0.0.0.0", port=4000, debug=True)

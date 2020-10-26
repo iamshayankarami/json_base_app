@@ -30,19 +30,36 @@ def __check_num(Time):
 def make_password_to_save(password):
 	return hashlib.sha256(password.encode()).hexdigest()
 
+
+def singin_form(input_data):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    show_data = {}
+    show_data[input_data["username"]] = {"private": input_data, "public": [parts for parts in input_data if parts != "password"], "requests_for_user": [], "send_requests_from_user": [], "profile_type": input_data["profile_type"], "active_ip_address": [], "user_activation": "log-in", "user_products_or_time_reservs": [input_data["product_or_time_reservs"]]}
+    if input_data["location"] in [citi for citi in send_data]:
+        send_data[input_data["location"]].append(input_data)
+    else:
+        send_data[input_data["location"]] = [input_data]
+    with open(find_main_json_filename(), "w") as Write_file:
+        json.dump(send_data, Write_file)
+
+def login_form(input_data):
+    if get_user_to(input_data["username"]) == []:
+        pass
+#this is the old version
 def json_singin(data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    location = data[4].split('/')[0]
+    username = data["username"]
+    location = data["location"].split('/')[0]
     geuss = [table for table in send_data if table == location]
     data_send_json = {}
-    data_send_json[data[1]] = []
-    data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'password': data[2], 'timeline': time_line_for_every_day(data[3]), 'work': data[5], 'location': data[4]})
-    data_send_json[data[1]].append({'name': data[0], 'username': data[1], 'timeline': time_line_for_every_day(data[3]), 'work': data[5], 'location': data[4]})
-    data_send_json[data[1]].append({'requests': []})
-    data_send_json[data[1]].append({'send_requests': []})
-    data_send_json[data[1]].append({'user_activation': 'log-in'})
-    data_send_json[data[1]].append({'user_products': []})
-    #data_send_json[data['username]].append({'time_line': time_line_for_every_day(data['timeline'].split('/'))})
+    data_send_json[username] = []
+    data_send_json[username].append({'name': data["name"], 'username': username, 'password': data["password"], 'product_or_time_reservs': data["product_or_time_reservs"], 'work': data["work"], 'location': data["location"]})
+    data_send_json[username].append({'name': data["name"], 'username': username, 'product_or_time_reservs': data["product_or_time_reservs"], 'work': data["work"], 'location': data["location"]})
+    data_send_json[username].append({'requests_for_user': []})
+    data_send_json[username].append({'send_requests_from_user': []})
+    data_send_json[username].append({'user_activation': 'log-in'})
+    if data["product_or_time_reservs"] == "sell_product" and data["product_or_time_reservs"] == "sell_both":
+        data_send_json[username].append({'user_products': []})
     if geuss == []:
         send_data[location] = []
         send_data[location].append(data_send_json)
@@ -52,7 +69,7 @@ def json_singin(data):
         json.dump(send_data, write)
 
 def Longin(push_data):
-	if get_user_to(push_data['username'])[0] == []:
+	if get_user_to(push_data['username'])[0] == None:
 		print('user not found')
 	else:
 		if push_data['password'] == get_user_to(push_data['username'])[0]['password']:
@@ -257,3 +274,16 @@ def show_all_products_and_reservs_in_user_citi(user_citi, username):
         if user[1]['username'] != username:
             return_data.append(user[5])
     return return_data
+
+class find_the_best_product:
+    def __init__(self, user_location, product_type=""):
+        self.user_location = user_location
+        self.product_type = product_type
+    def coloect_data_from_databse(self):
+        self.main_use_data = [citi for citi in chack_and_coloect_the_json_filename(find_main_json_filename()) if citi == self.user_location]
+    def find_all_products_in_location(self):
+        self.main_use_data = []
+        for citi in chack_and_coloect_the_json_filename(find_main_json_filename()):
+            if citi == self.user_location:
+                self.main_use_data.append(chack_and_coloect_the_json_filename(find_main_json_filename())[citi])
+        return self.main_use_data
