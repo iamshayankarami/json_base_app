@@ -1,0 +1,10 @@
+<html>
+<body>
+<form method="POST">
+{% for element in re %}
+	<b>{{ element }}</b><input type="checkbox" name="{{ element }}" checked><br>
+{% endfor %}
+<input type="submit" name="submit">
+</form>
+</body>
+</html>
