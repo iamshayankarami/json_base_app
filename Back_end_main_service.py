@@ -33,21 +33,34 @@ def make_password_to_save(password):
 def singin_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     show_data = {}
-    show_data[input_data["username"]] = {"private": input_data, "public": [parts for parts in input_data if parts != "password"], "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [], "user_activation": "log-in"}
-    if input_data["product_or_time_reservs"] == "sell_products" or input_data["product_or_time_reservs"] == "sell_both":
+    show_data[input_data["username"]] = {"private": {parts:input_data[parts] for parts in input_data if parts != "device_ip_address"}, "public": {parts:input_data[parts] for parts in input_data if parts != "password" and parts != "device_ip_address"}, "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in"}
+    if input_data["product_or_time_reservs"] == "sell_product" or input_data["product_or_time_reservs"] == "sell_both":
         show_data[input_data["username"]]["products"] = []
         show_data[input_data["username"]]["requests_for_user"] = []
+    if input_data["product_or_time_reservs"] == "sell_reserv_time" or input_data["product_or_time_reservs"] == "sell_both":
+        show_data[input_data["username"]]["timeline"] = []
     if input_data["location"] in [citi for citi in send_data]:
         send_data[input_data["location"]].append(show_data)
     else:
         send_data[input_data["location"]] = [show_data]
-    print(send_data)
     with open(find_main_json_filename(), "w") as Write_file:
         json.dump(send_data, Write_file)
 
 def login_form(input_data):
     if get_user_to(input_data["username"]) == []:
         pass
+
+def change_profile_D(user_name, main_user_data):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    for citi in send_data:
+        for username in send_data[citi]:
+            for name in username:
+                if name == user_name:
+                    username[name] = main_user_data
+    with open(find_main_json_filename(), "w") as Write_file:
+        json.dump(send_data, Write_file)
+#***********************************************************************************************
+#***********************************************************************************************
 #this is the old version
 def json_singin(data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
@@ -115,7 +128,7 @@ def get_user_to(usern):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     for citis in send_data:
         for user in send_data[citis]:
-            for username in ur:
+            for username in user:
                 if username == usern:
                     return user[username]
 

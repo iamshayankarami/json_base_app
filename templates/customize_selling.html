@@ -1,16 +1,16 @@
 <center>
 	<form method="POST" enctype="multipart/form-data">
-	{% if main_data["product_or_time_reservs"] == "sell_both" or main_data["product_or_time_reservs"] == "sell_reserv_time" %}
+	{% if main_data["private"]["product_or_time_reservs"] == "sell_both" or main_data["private"]["product_or_time_reservs"] == "sell_reserv_time" %}
 		<p>programming</p>
 		<div id="customize">
 			<label>colect your timeline</label>
 			<input type="input" name="timeline"><br><br>
-			{% if main_data["product_or_time_reservs"] == "sell_reserv_time" %}
+			{% if main_data["private"]["product_or_time_reservs"] == "sell_reserv_time" %}
 				<input type="submit" name="submit">
 				</form>
 			{% endif %}
 	{% endif %}
-	{% if main_data["product_or_time_reservs"] == "sell_product" %}
+	{% if main_data["private"]["product_or_time_reservs"] == "sell_product" or main_data["private"]["product_or_time_reservs"] == "sell_both" %}
 		<p> be st programmer</p>
 			<label>product's Name: </label><input type="text" name="product_name"><br><br>
 			<label>product's cpacity(kg or count): </label><input type="text" name="product_cpacity"><br><br>
