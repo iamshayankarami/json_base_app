@@ -18,25 +18,21 @@ def check_img_formath(filename):
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     if 'username' in session:
-        len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
-        return render_template('main_show_page.html', LUGR=len_user_gets_requests)
+        #len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
+        return render_template('main_show_page.html')#, LUGR=len_user_gets_requests)
     return render_template('welcome.php')
 
 @app.route('/profile', methods=["GET", "POST"])
 def index():
     if 'username' in session:
         username = session['username']
-        if get_user_to(username)[4]['user_activation'] == 'log-out':
+        if get_user_to(username)['user_activation'] == 'log-out':
             return redirect(url_for('login'))
-        #print(check_active(username))
-        user_requests = get_user_to(username)[2]
-        requets_number=len(user_requests['requests'])
-        Requests = show_requests(username)
-        if request.method == 'POST':
-            ACSS = request.form['ACS']
-            print(ACSS)
-            #change_requets_act(ACSS.split('-')[0], ACSS.split('-')[1])
-            return render_template("profile.html", username=username, requets_number=requets_number, Requests=Requests)
+        if get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_product":
+            requests = get_user_to(username)["requests_for_user"]
+        elif get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_reserv_time":
+            requests = get_user_to(username)["timeline"]
+        return render_template("profile.html", username=username, requests=requests)
     return render_template('welcome.php')
 
 @app.route('/singin', methods=['GET', 'POST'])
@@ -104,6 +100,14 @@ def check_profile_type():
         if request.form['profile_type'] == "bussines":
             return redirect(url_for("test_in_here", user_profile_type="bussines"))
     return render_template("check_profile_type.html")
+
+@app.route('/login', methods=['POST', 'GET'])
+def LogiN():
+    if request.form == 'POST':
+        user_name = request.form["username"]
+        password = make_password_to_save(request.form["password"])
+        Longin(user_name, password)
+    return render_template("login.html")
 
 @app.route('/old_singin', methods=["GET", "POST"])
 def singin():
@@ -191,14 +195,20 @@ def logout():
 
 @app.route('/add_new_product', methods=['POST', 'GET'])
 def add_new_product():
-    if request.method == 'POST':
-        new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
-        product_address = make_password_to_save(''.join([parts for parts in new_product]))
-        File = request.files['file']
-        if File and check_img_formath(File.filename):
-            filename = product_address + ".jpeg"
-            File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
-            product_address['product_image'] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
+    if "username" in session:
+        user_data = get_user_to(session["username"])
+        if request.method == 'POST':
+            new_product = {"product_seller": session["username"], 'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+            product_address = make_password_to_save(''.join([parts for parts in new_product]))
+            File = request.files['file']
+            if File and check_img_formath(File.filename):
+                filename = product_address + ".jpeg"
+                File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                new_product["product_address"] = product_address
+                new_product["product_image"] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
+                user_data["products"].append(new_product)
+                change_profile_D(session["username"], user_data) 
+                return redirect(url_for("index"))
     return render_template('add_new_product.html')
 
 if __name__ == '__main__':

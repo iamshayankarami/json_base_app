@@ -84,14 +84,14 @@ def json_singin(data):
     with open(find_main_json_filename(), 'w') as write:
         json.dump(send_data, write)
 
-def Longin(push_data):
-	if get_user_to(push_data['username'])[0] == None:
-		print('user not found')
-	else:
-		if push_data['password'] == get_user_to(push_data['username'])[0]['password']:
-			login_m(push_data['username'])
-		else:
-			print('wronge password')
+def Longin(username, password):
+    if get_user_to(password)[0] == None:
+        print('user not found')
+    else:
+        if push_data['password'] == get_user_to(push_data['username'])["private"]['password']:
+            login_m(push_data['username'])
+        else:
+            print('wronge password')
 
 def change_ip_add(username, ip_add):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
@@ -146,7 +146,7 @@ def LogOuT(username):
 		for user in send_data[citi]:
 			for name in user:
 				if username == name:
-					user[name][4]['user_activation'] = 'log-out'
+					user[name]['user_activation'] = 'log-out'
 	with open(find_main_json_filename(), 'w') as W:
 		json.dump(send_data, W)
 
@@ -166,7 +166,7 @@ def login_m(username):
 		for user in send_data[citi]:
 			for name in user:
 				if username == name:
-					user[name][4]['user_activation'] = 'log-in'
+					user[name]['user_activation'] = 'log-in'
 	with open(find_main_json_filename(), 'w') as W:
 		json.dump(send_data, W)
 

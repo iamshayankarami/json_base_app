@@ -50,7 +50,10 @@ ul.topnav li.right {float: right;}
 <a href="/logout">log out</a><br><br>
 <form method='POST'>
 {% for Request in Requests %}
-<b>{{Request["request_from"]}} reserved {{Request["time"]}}</b> <button style="background-color:#7CFC00" name="ACS" value="{{username}}-accept">accept</button> <button style="background-color:#FF0000" name="ACS" value="{{username}}-disaccept">disaccept</button><br><br>
+<b>{{request["request_from"]}} reserved {{Request["time"]}}</b> <button style="background-color:#7CFC00" name="ACS" value="{{username}}-accept">accept</button> <button style="background-color:#FF0000" name="ACS" value="{{username}}-disaccept">disaccept</button><br><br>
+{% endfor %}
+{% for request in Requests %}
+	<b>{{ request }}</b>
 {% endfor %}
 </form>
 </div>
