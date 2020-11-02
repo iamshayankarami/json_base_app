@@ -32,18 +32,22 @@ def index():
             requests = get_user_to(username)["requests_for_user"]
         elif get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_reserv_time":
             requests = get_user_to(username)["timeline"]
-        return render_template("profile.html", username=username, requests=requests)
+        return render_template("profile.html", username=username, requests=requests, profile_type=get_user_to(username)["profile_type"])
     return render_template('welcome.php')
 
 @app.route('/singin', methods=['GET', 'POST'])
 def test_in_here():
-    ip_address = request.remote_addr
-    if request.method == 'POST':
-        return_data = {"name": request.form["name"], "email": request.form["email"], "username": request.form["username"], "password": make_password_to_save(request.form["password"]), "work": request.form["work"], "product_or_time_reservs": request.form['job_product'], "location": request.form["location"], "device_ip_address": ip_address}
-        singin_form(return_data)
-        session["username"] = request.form["username"]
-        return redirect(url_for("test_set_time_line"))
-    return render_template('singin.html')
+    if "username" not in session:
+        ip_address = request.remote_addr
+        if request.method == 'POST':
+            return_data = {"name": request.form["name"], "email": request.form["email"], "username": request.form["username"], "password": make_password_to_save(request.form["password"]), "work": request.form["work"], "product_or_time_reservs": request.form['job_product'], "location": request.form["location"], "device_ip_address": ip_address}
+            singin_form(return_data)
+            session["username"] = request.form["username"]
+            if return_data["product_or_time_reservs"] == "sell_product":
+                return redirect(url_for("index"))
+            return redirect(url_for("test_set_time_line"))
+        return render_template('singin.html')
+    return redirect(url_for("index"))
 
 @app.route('/singin/set_time_line', methods=['POST', 'GET'])
 def test_set_time_line():
@@ -51,29 +55,11 @@ def test_set_time_line():
         #add ip_address checks
         main_data = get_user_to(session["username"])
         if request.method == 'POST':
-            if main_data["product_or_time_reservs"] == "sell_reserv_time":
+            if main_data["profile_type"] == "sell_reserv_time":
                 timeline = time_line_for_every_day(request.form["timeline"])
-                main_data["product_or_time_reservs"] = timeline
+                main_data["timeline"] = timeline
                 change_profile_D(session["username"], main_data)
                 return redirect(url_for('CUSTOM_TIMES'))
-            if main_data["product_or_time_reservs"] == "sell_both" or main_data["product_or_time_reservs"] == "sell_product":
-                new_product = {'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
-                product_address = make_password_to_save(''.join([parts for parts in new_product]))
-                new_product["product_address"] = product_address
-                File = request.files['file']
-                if File and check_img_formath(File.filename):
-                    filename = product_address + ".jpeg"
-                    File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
-                    new_product['product_image'] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
-                    if main_data["product_or_time_reservs"] == "sell_both":
-                        main_data["reserv_timeline"] = time_line_for_every_day(request.form["timeline"])
-                        change_profile_D(session["username"], main_data)
-                        add_Request(session["username"], new_product)
-                        return redirect(url_for("CUSTOM_TIMES"))
-                    else:
-                        #main_data["products"] = []
-                        add_Request(session["username"], new_product)
-                        return redirect(url_for("main_page"))
         return render_template("customize_selling.html", main_data=main_data)
 
 @app.route('/custom_times', methods=['POST', 'GET'])
@@ -83,15 +69,16 @@ def CUSTOM_TIMES():
         if get_user_to(session["username"])["product_or_time_reservs"] == "sell_both":
             GTS = get_user_to(session["username"])["private"]["reserv_timeline"]
         else:
-            GTS = get_user_to(session["username"])["product_or_time_reservs"]
+            GTS = get_user_to(session["username"])["timeline"]
         if request.method == 'POST':
             main_data = [element for element in request.form]
             main_data = main_data[:len(main_data)-1]
             if get_user_to(session["username"])["product_or_time_reservs"] == "sell_both":
                 return_data["private"]["reserv_timeline"] = main_data
             else:
-                return_data["private"]["product_or_time_reservs"] = main_data
-            custom_time_line(username, return_data)
+                return_data["timeline"] = main_data
+            return_data["product_or_time_reservs"] = [TimeS for TimeS in main_data if TimeS not in check_time_requests(return_data["requests_for_user"])]
+            print(return_data)
         return render_template('custom_times.html', re=GTS)
 
 @app.route('/check_profile_type', methods=['POST', 'GET'])
@@ -103,50 +90,18 @@ def check_profile_type():
 
 @app.route('/login', methods=['POST', 'GET'])
 def LogiN():
-    if request.form == 'POST':
-        user_name = request.form["username"]
-        password = make_password_to_save(request.form["password"])
-        Longin(user_name, password)
-    return render_template("login.html")
-
-@app.route('/old_singin', methods=["GET", "POST"])
-def singin():
-    ip_add = request.remote_addr
-    if request.method == 'POST':
-        name = request.form["name"]
-        work = request.form["work"]
-        password = make_password_to_save(request.form["password"])
-        username = request.form["username"]
-        timeline = request.form["timeline"]
-        location = request.form["location"]
-        push_data=[name, username, password, timeline, location, work, ip_add]
-        json_singin(push_data)
-        session['username']=username
-        return redirect(url_for('index'))
-    return render_template("singin.html")
-
-@app.route('/old_login', methods=["GET", "POST"])
-def login():
-	ip_add = request.remote_addr
-	if request.method == "POST":
-		username = request.form["username"]
-		password = make_password_to_save(request.form["password"])
-		if get_user_to(username)[0] == []:
-			return 'username not founded'
-		else:
-			if password == get_user_to(username)[0]['password']:
-				#change_ip_add(username, ip_add)
-				login_m(username)
-				session['username']=username
-				return redirect(url_for('index'))
-			else:
-				return 'wronge password'
-	return '''<center>
-	<form method='POST'>
-		<p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><input type='submit' name='submit' id='submit'>
-	</form>
-</center>
-'''
+    if "username" not in session:
+        if request.method == 'POST':
+            user_name = request.form["username"]
+            password = make_password_to_save(request.form["password"])
+            LOGIN_CHECK = Longin(user_name, password)
+            if LOGIN_CHECK == "loggin_good":
+                session["username"] = user_name
+                return redirect(url_for("index"))
+            else:
+                flash(LOGIN_CHECK)
+        return render_template("login.html")
+    return redirect(url_for("index"))
 
 @app.route('/show_all')
 def SHOW_ALL():
@@ -207,9 +162,16 @@ def add_new_product():
                 new_product["product_address"] = product_address
                 new_product["product_image"] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
                 user_data["products"].append(new_product)
+                user_data["product_or_time_reservs"].append(new_product)
                 change_profile_D(session["username"], user_data) 
                 return redirect(url_for("index"))
     return render_template('add_new_product.html')
+
+@app.route("/<username>", methods=["POST", "GET"])
+def show_products_or_timelines(username):
+    if "username" in session:
+        return get_user_to(username)["products"][0]
+    return redirect(url_for("LogiN"))
 
 if __name__ == '__main__':
 	app.run("0.0.0.0", port=4000, debug=True)

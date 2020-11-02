@@ -33,10 +33,10 @@ def make_password_to_save(password):
 def singin_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     show_data = {}
-    show_data[input_data["username"]] = {"private": {parts:input_data[parts] for parts in input_data if parts != "device_ip_address"}, "public": {parts:input_data[parts] for parts in input_data if parts != "password" and parts != "device_ip_address"}, "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in"}
+    show_data[input_data["username"]] = {"private": {parts:input_data[parts] for parts in input_data if parts != "device_ip_address"}, "public": {parts:input_data[parts] for parts in input_data if parts != "password" and parts != "device_ip_address"}, "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in", "requests_for_user": []}
     if input_data["product_or_time_reservs"] == "sell_product" or input_data["product_or_time_reservs"] == "sell_both":
         show_data[input_data["username"]]["products"] = []
-        show_data[input_data["username"]]["requests_for_user"] = []
+        show_data[input_data["username"]]["product_or_time_reservs"] = show_data[input_data["username"]]["products"]
     if input_data["product_or_time_reservs"] == "sell_reserv_time" or input_data["product_or_time_reservs"] == "sell_both":
         show_data[input_data["username"]]["timeline"] = []
     if input_data["location"] in [citi for citi in send_data]:
@@ -49,7 +49,8 @@ def singin_form(input_data):
 def login_form(input_data):
     if get_user_to(input_data["username"]) == []:
         pass
-
+def show_the_user_wants_products(username):
+    user_data = get_user_to(username)
 def change_profile_D(user_name, main_user_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     for citi in send_data:
@@ -85,13 +86,14 @@ def json_singin(data):
         json.dump(send_data, write)
 
 def Longin(username, password):
-    if get_user_to(password)[0] == None:
-        print('user not found')
+    if get_user_to(username) == None:
+        return "user not found"
     else:
-        if push_data['password'] == get_user_to(push_data['username'])["private"]['password']:
-            login_m(push_data['username'])
+        if password == get_user_to(username)["private"]['password']:
+            login_m(username)
+            return "loggin_good"
         else:
-            print('wronge password')
+            return 'wronge password'
 
 def change_ip_add(username, ip_add):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
@@ -314,3 +316,5 @@ class find_the_best_product:
             if citi == self.user_location:
                 self.main_use_data.append(chack_and_coloect_the_json_filename(find_main_json_filename())[citi])
         return self.main_use_data
+def check_time_requests(requests):
+    return [TIME["time"] for TIME in requests if TIME["requests_activation"] not in ["canceld", "ended_selling", "not_selling_now"]]

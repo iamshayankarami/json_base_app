@@ -1,5 +1,13 @@
 <center>
+	{% with errors = get_flashed_messages() %}
+		{% if errors %}
+			{% for error in errors %}
+				{{ error }}
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
 	<form method='POST'>
 		<p>username</p><input type='text', name='username'><br><p>password</p><input type='password' name='password'><br><input type='submit' name='submit' id='submit'>
 	</form>
+	<a href="/singin">new user</a>
 </center>
