@@ -66,19 +66,20 @@ def test_set_time_line():
 def CUSTOM_TIMES():
     if "username" in session:
         return_data = get_user_to(session["username"])
-        if get_user_to(session["username"])["product_or_time_reservs"] == "sell_both":
+        if get_user_to(session["username"])["profile_type"] == "sell_both":
             GTS = get_user_to(session["username"])["private"]["reserv_timeline"]
         else:
             GTS = get_user_to(session["username"])["timeline"]
         if request.method == 'POST':
             main_data = [element for element in request.form]
             main_data = main_data[:len(main_data)-1]
-            if get_user_to(session["username"])["product_or_time_reservs"] == "sell_both":
+            if get_user_to(session["username"])["profile_type"] == "sell_both":
                 return_data["private"]["reserv_timeline"] = main_data
             else:
                 return_data["timeline"] = main_data
             return_data["product_or_time_reservs"] = [TimeS for TimeS in main_data if TimeS not in check_time_requests(return_data["requests_for_user"])]
-            print(return_data)
+            change_profile_D(session["username"], return_data)
+            return redirect(url_for("index"))
         return render_template('custom_times.html', re=GTS)
 
 @app.route('/check_profile_type', methods=['POST', 'GET'])
@@ -170,7 +171,7 @@ def add_new_product():
 @app.route("/<username>", methods=["POST", "GET"])
 def show_products_or_timelines(username):
     if "username" in session:
-        return get_user_to(username)["products"][0]
+        return "".join([PART for PART in get_user_to(username)["product_or_time_reservs"]])
     return redirect(url_for("LogiN"))
 
 if __name__ == '__main__':
