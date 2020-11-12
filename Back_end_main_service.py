@@ -7,94 +7,54 @@ def find_main_json_filename():
             main_json_file.append(filename)
     if len(main_json_file) > 1:
         print("find more then one json file, Please delete the nonesance ones, but if you don't want I don't care I only reade the first one I find and this is your fald if its crash")
-    return main_json_file[0]
+    #return main_json_file[0]
+    return "test2.json"
 
 def chack_and_coloect_the_json_filename(json_filename):
     with open(json_filename, 'r') as Read_file:
             return_json_file = json.load(Read_file)
     return return_json_file
-
-def find_the_send_requests_and_cahnge_the_activation():
-    pass
-def get_time():
-	return time.asctime()[11:19]
-
-def today_date():
-	re = f"{time.asctime()[:11]}{time.asctime()[20:]}"
-	return re
-
-def __check_num(Time):
-	return Time[0:2]
+    #return {}
 
 def make_password_to_save(password):
-	return hashlib.sha256(password.encode()).hexdigest()
+    return hashlib.sha256(password.encode()).hexdigest()
 
 
 def singin_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     show_data = {}
-    show_data[input_data["username"]] = {"private": {parts:input_data[parts] for parts in input_data if parts != "device_ip_address"}, "public": {parts:input_data[parts] for parts in input_data if parts != "password" and parts != "device_ip_address"}, "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in", "requests_for_user": []}
-    if input_data["product_or_time_reservs"] == "sell_product" or input_data["product_or_time_reservs"] == "sell_both":
-        show_data[input_data["username"]]["products"] = []
-        show_data[input_data["username"]]["product_or_time_reservs"] = show_data[input_data["username"]]["products"]
+    show_data = {"private": {parts:input_data[parts] for parts in input_data if parts not in ["device_ip_address", "product_or_time_reservs", "username", "location"]}, "public": {parts:input_data[parts] for parts in input_data if parts in ["username", "email", "work", "location"]}, "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in", "requests_for_user": [], "products": []}
     if input_data["product_or_time_reservs"] == "sell_reserv_time" or input_data["product_or_time_reservs"] == "sell_both":
-        show_data[input_data["username"]]["timeline"] = []
+        show_data["timeline"] = []
     if input_data["location"] in [citi for citi in send_data]:
-        send_data[input_data["location"]].append(show_data)
+        send_data[input_data["location"]][input_data["username"]] = show_data
     else:
-        send_data[input_data["location"]] = [show_data]
+        send_data[input_data["location"]] = {}
+        send_data[input_data["location"]][input_data["username"]] = show_data
     with open(find_main_json_filename(), "w") as Write_file:
         json.dump(send_data, Write_file)
 
 def login_form(input_data):
-    if get_user_to(input_data["username"]) == []:
-        pass
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    G_user_data = get_user_to(input_data["username"])
+    if G_user_data != []:
+        if G_user_data["password"] == input_data["password"]:
+            send_data[G_user_data["public"]["location"]][input_data["username"]]["user_activation"] = "log-in"
+            return {"ERROR": ""}
+        else:
+            return {"ERROR": "wrong_password"}
+    else:
+        return {"ERROR": "user_not_found"}
 def show_the_user_wants_products(username):
     user_data = get_user_to(username)
+
 def change_profile_D(user_name, main_user_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    for citi in send_data:
-        for username in send_data[citi]:
-            for name in username:
-                if name == user_name:
-                    username[name] = main_user_data
+    send_data[get_user_to(user_name)["public"]["location"]][user_name] = main_user_data
     with open(find_main_json_filename(), "w") as Write_file:
         json.dump(send_data, Write_file)
-#***********************************************************************************************
-#***********************************************************************************************
-#this is the old version
-def json_singin(data):
-    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    username = data["username"]
-    location = data["location"].split('/')[0]
-    geuss = [table for table in send_data if table == location]
-    data_send_json = {}
-    data_send_json[username] = []
-    data_send_json[username].append({'name': data["name"], 'username': username, 'password': data["password"], 'product_or_time_reservs': data["product_or_time_reservs"], 'work': data["work"], 'location': data["location"]})
-    data_send_json[username].append({'name': data["name"], 'username': username, 'product_or_time_reservs': data["product_or_time_reservs"], 'work': data["work"], 'location': data["location"]})
-    data_send_json[username].append({'requests_for_user': []})
-    data_send_json[username].append({'send_requests_from_user': []})
-    data_send_json[username].append({'user_activation': 'log-in'})
-    if data["product_or_time_reservs"] == "sell_product" and data["product_or_time_reservs"] == "sell_both":
-        data_send_json[username].append({'user_products': []})
-    if geuss == []:
-        send_data[location] = []
-        send_data[location].append(data_send_json)
-    else:
-        send_data[geuss[0]].append(data_send_json)
-    with open(find_main_json_filename(), 'w') as write:
-        json.dump(send_data, write)
 
-def Longin(username, password):
-    if get_user_to(username) == None:
-        return "user not found"
-    else:
-        if password == get_user_to(username)["private"]['password']:
-            login_m(username)
-            return "loggin_good"
-        else:
-            return 'wronge password'
-
+#have to check the format I LOVE PROGRAMMING
 def change_ip_add(username, ip_add):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
 	for citi in send_data:
@@ -128,11 +88,10 @@ def show_all_users_poblic_data_in_user_location(user_location):
 
 def get_user_to(usern):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    for citis in send_data:
-        for user in send_data[citis]:
-            for username in user:
-                if username == usern:
-                    return user[username]
+    for citi in send_data:
+        for user in send_data[citi]:
+            if user == usern:
+                return send_data[citi][user]
 
 def delete_user(username):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
@@ -146,9 +105,8 @@ def LogOuT(username):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
 	for citi in send_data:
 		for user in send_data[citi]:
-			for name in user:
-				if username == name:
-					user[name]['user_activation'] = 'log-out'
+			if user == username:
+				send_data[citi][user]['user_activation'] = 'log-out'
 	with open(find_main_json_filename(), 'w') as W:
 		json.dump(send_data, W)
 
@@ -318,3 +276,52 @@ class find_the_best_product:
         return self.main_use_data
 def check_time_requests(requests):
     return [TIME["time"] for TIME in requests if TIME["requests_activation"] not in ["canceld", "ended_selling", "not_selling_now"]]
+
+
+def find_the_send_requests_and_cahnge_the_activation():
+    pass
+def get_time():
+    return time.asctime()[11:19]
+
+def today_date():
+    re = f"{time.asctime()[:11]}{time.asctime()[20:]}"
+    return re
+
+def __check_num(Time):
+    return Time[0:2]
+
+#
+#***********************************************************************************************
+#***********************************************************************************************
+#this is the old version
+def json_singin(data):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    username = data["username"]
+    location = data["location"].split('/')[0]
+    geuss = [table for table in send_data if table == location]
+    data_send_json = {}
+    data_send_json[username] = []
+    data_send_json[username].append({'name': data["name"], 'username': username, 'password': data["password"], 'product_or_time_reservs': data["product_or_time_reservs"], 'work': data["work"], 'location': data["location"]})
+    data_send_json[username].append({'name': data["name"], 'username': username, 'product_or_time_reservs': data["product_or_time_reservs"], 'work': data["work"], 'location': data["location"]})
+    data_send_json[username].append({'requests_for_user': []})
+    data_send_json[username].append({'send_requests_from_user': []})
+    data_send_json[username].append({'user_activation': 'log-in'})
+    if data["product_or_time_reservs"] == "sell_product" and data["product_or_time_reservs"] == "sell_both":
+        data_send_json[username].append({'user_products': []})
+    if geuss == []:
+        send_data[location] = []
+        send_data[location].append(data_send_json)
+    else:
+        send_data[geuss[0]].append(data_send_json)
+    with open(find_main_json_filename(), 'w') as write:
+        json.dump(send_data, write)
+
+def Longin(username, password):
+    if get_user_to(username) == None:
+        return "user not found"
+    else:
+        if password == get_user_to(username)["private"]['password']:
+            login_m(username)
+            return "loggin_good"
+        else:
+            return 'wronge password'

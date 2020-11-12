@@ -171,7 +171,7 @@ def add_new_product():
 @app.route("/<username>", methods=["POST", "GET"])
 def show_products_or_timelines(username):
     if "username" in session:
-        return render_template("show_profile.html", products=get_user_to(username)["product_or_time_reservs"])
+        return render_template("show_profile.html")
     return redirect(url_for("LogiN"))
 
 if __name__ == '__main__':
