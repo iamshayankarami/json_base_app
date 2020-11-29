@@ -15,9 +15,21 @@ def __check_num(Time):
 def check_img_formath(filename):
     return '.' in filename and filename.rsplit('.')[1].lower() in set(['jpg', 'png', 'jpeg'])
 
+
+def check_user_logage(username):
+    if get_user_to(username)['user_activation'] == 'log-out':
+        return redurect(url_for('login'))
+
+def get_user_requests(username):
+    if get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_product":
+        return get_user_to(username)["requests_for_user"]
+    elif get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_reserv_time":
+        return get_user_to(username)["timeline"]
+
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     if 'username' in session:
+        check_user_logage(session["username"])
         #len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
         return render_template('main_show_page.html')#, LUGR=len_user_gets_requests)
     return render_template('welcome.php')
@@ -26,12 +38,8 @@ def main_page():
 def index():
     if 'username' in session:
         username = session['username']
-        if get_user_to(username)['user_activation'] == 'log-out':
-            return redirect(url_for('login'))
-        if get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_product":
-            requests = get_user_to(username)["requests_for_user"]
-        elif get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_reserv_time":
-            requests = get_user_to(username)["timeline"]
+        check_user_logage(username)
+        requests = get_user_requests(username)
         return render_template("profile.html", username=username, requests=requests, profile_type=get_user_to(username)["profile_type"])
     return render_template('welcome.php')
 
@@ -52,6 +60,7 @@ def test_in_here():
 @app.route('/singin/set_time_line', methods=['POST', 'GET'])
 def test_set_time_line():
     if "username" in session:
+        check_user_logage(session["username"])
         #add ip_address checks
         main_data = get_user_to(session["username"])
         if request.method == 'POST':
@@ -65,6 +74,7 @@ def test_set_time_line():
 @app.route('/custom_times', methods=['POST', 'GET'])
 def CUSTOM_TIMES():
     if "username" in session:
+        check_user_logage(session["username"])
         return_data = get_user_to(session["username"])
         if get_user_to(session["username"])["profile_type"] == "sell_both":
             GTS = get_user_to(session["username"])["private"]["reserv_timeline"]
@@ -106,13 +116,14 @@ def LogiN():
 
 @app.route('/show_all')
 def SHOW_ALL():
-	#ip_add = request.remote_addr
-	if 'username' in session:
-		username=session['username']
-		user_data=get_user_to(username)
-		show_data = show_all_users_poblic_data_in_user_location(user_data[1]['location'])
-		return ''.join([f'''<a href={url_for('show_user', show_username=users[1]['username'])}>{users[1]['username']} </a><b>{users[1]['work']} </b><br><br>''' for users in show_data if users[1]['username'] != username])
-	return redirect(url_for('index'))
+    #ip_add = request.remote_addr
+    if 'username' in session:
+        username=session['username']
+        check_user_logage(username)
+        user_data=get_user_to(username)
+        show_data = show_all_users_poblic_data_in_user_location(user_data[1]['location'])
+        return ''.join([f'''<a href={url_for('show_user', show_username=users[1]['username'])}>{users[1]['username']} </a><b>{users[1]['work']} </b><br><br>''' for users in show_data if users[1]['username'] != username])
+    return redirect(url_for('index'))
 
 
 @app.route('/show_data_of', methods=['POST', 'GET'])
@@ -120,6 +131,7 @@ def show_user():
     if 'username' in session:
         show_username = request.args.get('show_username', None)
         username = session['username']
+        check_user_logage(username)
         status = send_Request(username, show_username)
         timelines = status.check_time_line()
         if request.method == 'POST':
@@ -133,6 +145,7 @@ def show_user():
 @app.route('/show_my_send_requests', methods=['POST', 'GET'])
 def show_my_send_requests():
     if 'username' in session:
+        check_user_logage(session["username"])
         all_of_my_request = get_user_to(session['username'])[3]['send_requests']
         send_text = []
         for re in all_of_my_request:
@@ -142,16 +155,17 @@ def show_my_send_requests():
 
 @app.route('/logout')
 def logout():
-	#ip_add = request.remote_addr
-	if 'username' in session:
-		LogOuT(session['username'])
-		session.pop('username', None)
-		return redirect(url_for('index'))
-	return redirect(url_for('index'))
+    #ip_add = request.remote_addr
+    if 'username' in session:
+        LogOuT(session['username'])
+        session.pop('username', None)
+        return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 @app.route('/add_new_product', methods=['POST', 'GET'])
 def add_new_product():
     if "username" in session:
+        check_user_logage(session["username"])
         user_data = get_user_to(session["username"])
         if request.method == 'POST':
             new_product = {"product_seller": session["username"], 'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
@@ -171,6 +185,7 @@ def add_new_product():
 @app.route("/<username>", methods=["POST", "GET"])
 def show_products_or_timelines(username):
     if "username" in session:
+        check_user_logage(session["username"])
         return render_template("show_profile.html")
     return redirect(url_for("LogiN"))
 
