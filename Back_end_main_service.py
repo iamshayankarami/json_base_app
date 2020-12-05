@@ -5,8 +5,8 @@ def find_main_json_filename():
     for filename in os.listdir():
         if filename.find('.json') != -1:
             main_json_file.append(filename)
-    if len(main_json_file) > 1:
-        print("find more then one json file, Please delete the nonesance ones, but if you don't want I don't care I only reade the first one I find and this is your fald if its crash")
+    #if len(main_json_file) > 1:
+        #print("find more then one json file, Please delete the nonesance ones, but if you don't want I don't care I only reade the first one I find and this is your fald if its crash")
     #return main_json_file[0]
     return "test2.json"
 

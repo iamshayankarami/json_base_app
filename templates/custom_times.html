@@ -1,8 +1,13 @@
 <html>
 <body>
+
 <form method="POST">
 {% for element in re %}
-	<b>{{ element }}</b><input type="checkbox" name="{{ element }}" checked><br>
+	{% if re_len < 20 %}
+		<b>{{ element }}</b><input type="checkbox" name="{{ element }}" checked><br>
+	{% else %}
+		<b>{{ element }}</b><input type="checkbox" name="{{ element }}"><br>
+	{% endif %}
 {% endfor %}
 <input type="submit" name="submit">
 </form>

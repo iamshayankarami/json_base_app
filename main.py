@@ -18,7 +18,7 @@ def check_img_formath(filename):
 
 def check_user_logage(username):
     if get_user_to(username)['user_activation'] == 'log-out':
-        return redurect(url_for('login'))
+        return redirect(url_for('login'))
 
 def get_user_requests(username):
     if get_user_to(username)["profile_type"] == "sell_both" or get_user_to(username)["profile_type"] == "sell_product":
@@ -41,7 +41,6 @@ def index():
         check_user_logage(username)
         requests = get_user_requests(username)
         return render_template("profile.html", username=username, requests=requests, profile_type=get_user_to(username)["profile_type"])
-    return render_template('welcome.php')
 
 @app.route('/singin', methods=['GET', 'POST'])
 def test_in_here():
@@ -64,33 +63,32 @@ def test_set_time_line():
         #add ip_address checks
         main_data = get_user_to(session["username"])
         if request.method == 'POST':
-            if main_data["profile_type"] == "sell_reserv_time":
-                timeline = time_line_for_every_day(request.form["timeline"])
+            if main_data["profile_type"] == "sell_both" or main_data["profile_type"] == "sell_reserv_time" and main_data["timeline"] == "":
+                input_timeline = request.form["timeline"]
+                if input_timeline == "":
+                    timeline = time_line_for_every_day("0/24/60")
+                else:
+                    timeline = time_line_for_every_day(input_timeline)
+                print(timeline)
                 main_data["timeline"] = timeline
                 change_profile_D(session["username"], main_data)
-                return redirect(url_for('CUSTOM_TIMES'))
-        return render_template("customize_selling.html", main_data=main_data)
+                return redirect(url_for('customize_timeline'))
+        return render_template("customize_selling.html")
 
-@app.route('/custom_times', methods=['POST', 'GET'])
-def CUSTOM_TIMES():
+@app.route('/custom_main_time_line', methods=['POST', 'GET'])
+def customize_timeline():
     if "username" in session:
         check_user_logage(session["username"])
         return_data = get_user_to(session["username"])
-        if get_user_to(session["username"])["profile_type"] == "sell_both":
-            GTS = get_user_to(session["username"])["private"]["reserv_timeline"]
-        else:
+        if return_data["profile_type"] == "sell_both" or return_data["profile_type"] == "sell_reserv_time":
             GTS = get_user_to(session["username"])["timeline"]
-        if request.method == 'POST':
-            main_data = [element for element in request.form]
-            main_data = main_data[:len(main_data)-1]
-            if get_user_to(session["username"])["profile_type"] == "sell_both":
-                return_data["private"]["reserv_timeline"] = main_data
-            else:
-                return_data["timeline"] = main_data
-            return_data["product_or_time_reservs"] = [TimeS for TimeS in main_data if TimeS not in check_time_requests(return_data["requests_for_user"])]
-            change_profile_D(session["username"], return_data)
-            return redirect(url_for("index"))
-        return render_template('custom_times.html', re=GTS)
+            if request.method == 'POST':
+                main_data = [element for element in request.form]
+                return_data["timeline"] = main_data[:len(main_data)-1]
+                #return_data["product_or_time_reservs"] = [TimeS for TimeS in main_data if TimeS not in check_time_requests(return_data["requests_for_user"])]
+                change_profile_D(session["username"], return_data)
+                return redirect(url_for("index"))
+        return render_template('custom_times.html', re=GTS, re_len=len(GTS))
 
 @app.route('/check_profile_type', methods=['POST', 'GET'])
 def check_profile_type():
@@ -100,7 +98,7 @@ def check_profile_type():
     return render_template("check_profile_type.html")
 
 @app.route('/login', methods=['POST', 'GET'])
-def LogiN():
+def login():
     if "username" not in session:
         if request.method == 'POST':
             user_name = request.form["username"]
@@ -167,17 +165,19 @@ def add_new_product():
     if "username" in session:
         check_user_logage(session["username"])
         user_data = get_user_to(session["username"])
-        if request.method == 'POST':
-            new_product = {"product_seller": session["username"], 'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
-            product_address = make_password_to_save(''.join([parts for parts in new_product]))
-            File = request.files['file']
-            if File and check_img_formath(File.filename):
-                filename = product_address + ".jpeg"
-                File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+        if user_data["profile_type"] == "sell_both" or user_data["profile_type"] == "sell_product":
+            if request.method == 'POST':
+                new_product = {"product_seller": session["username"], 'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
+                product_address = make_password_to_save(''.join([parts for parts in new_product]))
+                File = request.files['file']
+                if File and check_img_formath(File.filename):
+                    filename = product_address + ".jpeg"
+                    File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                    new_product["product_image"] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
+                else:
+                    new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
                 new_product["product_address"] = product_address
-                new_product["product_image"] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
                 user_data["products"].append(new_product)
-                user_data["product_or_time_reservs"].append(new_product)
                 change_profile_D(session["username"], user_data) 
                 return redirect(url_for("index"))
     return render_template('add_new_product.html')

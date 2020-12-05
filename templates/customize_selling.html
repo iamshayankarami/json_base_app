@@ -1,23 +1,10 @@
 <center>
-	<form method="POST" enctype="multipart/form-data">
-	{% if main_data["private"]["product_or_time_reservs"] == "sell_both" or main_data["private"]["product_or_time_reservs"] == "sell_reserv_time" %}
-		<p>programming</p>
-		<div id="customize">
-			<label>colect your timeline</label>
-			<input type="input" name="timeline"><br><br>
-			{% if main_data["private"]["product_or_time_reservs"] == "sell_reserv_time" %}
-				<input type="submit" name="submit">
-				</form>
-			{% endif %}
-	{% endif %}
-	{% if main_data["private"]["product_or_time_reservs"] == "sell_product" or main_data["private"]["product_or_time_reservs"] == "sell_both" %}
-		<p> be st programmer</p>
-			<label>product's Name: </label><input type="text" name="product_name"><br><br>
-			<label>product's cpacity(kg or count): </label><input type="text" name="product_cpacity"><br><br>
-			<label>product's price: </label><input type="text" name="product_price"><br><br>
-			<label>choice a picture for product: </label><input type="file" name="file" autocomplete="off" required><br><br>
-			<input type="submit" name="submit">
-			</form>
-		</div>
-	{% endif %}
+	<h2>Please write your timeline by that format => start from/end to/time range</h2>
+	<h2>for exsampel 10/12/30 it is means start from 10 oclock and ends at 12 oclock and the time range is 30 mins.</h2>
+	<h2>or you can submit it empty to be a timeline from 0 oclock to 24 oclock by 1 hour time range, and then custimize it at next step :)</h2>
+	<form method="POST">
+		<label>timeline: </label>
+		<input type="text" name="timeline">
+		<input type="submit" name="submit">
+	</form>
 </center>

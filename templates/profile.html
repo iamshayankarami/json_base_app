@@ -47,8 +47,8 @@ ul.topnav li.right {float: right;}
 </ul>
 <div style="padding-left:16px">
 <p>main page of {{username}}</p>
-{% if profile_type == "sell_product" %}
-	<a href="/add_new_product">add new product</a><br>
+{% if profile_type == "sell_product" or profile_type == "sell_both" %}
+	<a href="/add_new_product">add new product</a><br><br>
 {% endif %}
 <a href="/logout">log out</a><br><br>
 <form method='POST'>
