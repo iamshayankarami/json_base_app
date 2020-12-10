@@ -1,50 +1,39 @@
+<!DOCTYPE html>
 <html>
-<style>
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+<title>صفحه اصلی</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<body>
+
+<!-- Sidebar -->
+<div class="w3-sidebar w3-bar-block w3-animate-left" style="display:none;z-index:5" id="mySidebar">
+  <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">بستن &times;</button>
+  <a href="profile" class="w3-bar-item w3-button">حساب کاربری</a>
+  <a href="#" class="w3-bar-item w3-button">سفارش های من</a>
+  <a href="logout" class="w3-bar-item w3-button">خروج</a>
+</div>
+
+<!-- Page Content -->
+<div class="w3-overlay w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" id="myOverlay"></div>
+
+<div>
+  <button class="w3-button w3-white w3-xxlarge" onclick="w3_open()">&#9776;</button>
+  <div class="w3-container">
+    <?php echo 1+1; ?>
+  </div>
+</div>
+     
+<script>
+function w3_open() {
+  document.getElementById("mySidebar").style.display = "block";
+  document.getElementById("myOverlay").style.display = "block";
 }
 
-ul.topnav {
-	list-style-type: none;
-	margin: 0;
-	overflow: hidden;
-	padding: 0;
-	background-color: #81D8D0;
+function w3_close() {
+  document.getElementById("mySidebar").style.display = "none";
+  document.getElementById("myOverlay").style.display = "none";
 }
-
-.topnav a {
-  float: left;
-  display: block;
-  color: #f2f2f2;
-  text-align: center;
-  padding: 14px 19px;
-  text-decoration: none;
-  font-size: 17px;
-}
-
-.topnav a:hover {
-  background-color: #C0D9D9;
-  color: black;
-}
-
-.topnav a.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-ul.topnav li.right {float: right;}
-
-@media screen and (max-width: 600px) {
-  ul.topnav li.right, 
-  ul.topnav li {float: none;}
-}
-
-</style>
-<ul class="topnav" id="TopNav">
-	<li><a class="active" href="/">home</a></li>
-	<li class="right"><a href="/profile"><img src="https://img.icons8.com/ios-filled/50/000000/gender-neutral-user.png" width="21" height="21"/></a></li>
-</ul>
-<center>
-</center>
+</script>
+          
+</body>
 </html>

@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, url_for, redirect, session, flash
-import os, time
+import os, time, sqlite3
 import urllib.request
 from Back_end_main_service import *
 
@@ -173,8 +173,12 @@ def add_new_product():
             File = request.files['file']
             if File and check_img_formath(File.filename):
                 filename = product_address + ".jpeg"
-                File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
-                new_product["product_image"] = os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename)
+                with sqlite3.connect("Image_databases.db") as conn:
+                    c = conn.cursor()
+                    c.execute("INSERT INTO PRODUCTS_IMAGES VALUES (?, ?, ?)", [session["username"], product_address, sqlite3.Binary(File.read())])
+                    conn.commit()
+                #File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                new_product["product_image"] = filename
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
             new_product["product_address"] = product_address
@@ -187,8 +191,10 @@ def add_new_product():
 def show_products_or_timelines(username):
     if "username" in session:
         check_user_logage(session["username"])
-        return render_template("show_profile.html")
-    return redirect(url_for("LogiN"))
+        user_data = get_user_to(username)["public"]
+        user_all_products_and_times = get_user_to(username)["products"]
+        return render_template("show_profile.html", user_info=str(user_data), user_sells=user_all_products_and_times)
+    return redirect(url_for("login"))
 
 
 @app.route("/show_all_products")

@@ -1,4 +1,8 @@
-{% for product in products %}
-	<img src='{{product["product_image"]}}'>
-	<p>{{ product }}</p>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<body>
+<p>{{ user_info }}</p>
+
+{%  for element in user_sells %}
+	<p>{{ element }}</p>
 {% endfor %}
+</body>
