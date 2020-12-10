@@ -46,21 +46,15 @@ ul.topnav li.right {float: right;}
 	<li class="right"><a href="/profile"><img src="https://img.icons8.com/ios-filled/50/000000/gender-neutral-user.png" width="21" height="21"/></a></li>
 </ul>
 <div style="padding-left:16px">
-<p>main page of {{username}}</p>
-{% if profile_type == "sell_product" or profile_type == "sell_both" %}
-	<a href="/add_new_product">add new product</a><br><br>
-{% endif %}
-<a href="/logout">log out</a><br><br>
-<form method='POST'>
-{% if porsonal_requests %}
-{% for Porsonal_requests in porsonal_requests %}
-<b>{{Porsonal_requests["request_from"]}} reserved {{Porsonal_requests["time"]}}</b> <button style="background-color:#7CFC00" name="ACS" value="{{username}}-accept">accept</button> <button style="background-color:#FF0000" name="ACS" value="{{username}}-disaccept">disaccept</button><br><br>
-{% endfor %}
-{% else %}
-<p> no requests yet </p>
-{% endif %}
-{% for request in Requests %}
-	<b>{{ request }}</b>
+{% for product in products %}
+	<h3>{{ product["product_name"] }}</h3>
+	<h3>by: {{ product["product_seller"] }}</h3>
+	<h3>product_cpacity: {{ product["product_cpacity"] }}</h3>
+	<h3>price: {{ product["product_price"] }}</h3>
+	<h3>activation: {{ product["product_activ"] }}</h3>
+	<h3>{{ product["product_image"] }}</h3>
+	<img src="/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG/dbf980e64babf2597b1967c091dbb1d8b0f1478bf334dddb5c4f743f35168c18.jpeg" >
+	<br>
 {% endfor %}
 </form>
 </div>

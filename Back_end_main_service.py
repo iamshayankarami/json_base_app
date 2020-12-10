@@ -8,7 +8,7 @@ def find_main_json_filename():
     #if len(main_json_file) > 1:
         #print("find more then one json file, Please delete the nonesance ones, but if you don't want I don't care I only reade the first one I find and this is your fald if its crash")
     #return main_json_file[0]
-    return "test2.json"
+    return "test3.json"
 
 def chack_and_coloect_the_json_filename(json_filename):
     with open(json_filename, 'r') as Read_file:
@@ -114,9 +114,8 @@ def login_active(username):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
 	for citi in send_data:
 		for user in send_data[citi]:
-			for name in user:
-				if name == username:
-					user[name][4]['user_activation'] = 'log-in'
+			if user == username:
+				send_data[citi][user]['user_activation'] = 'log-in'
 	with open(find_main_json_filename(), 'w') as write_file:
 		json.dump(send_data, write_file)
 
