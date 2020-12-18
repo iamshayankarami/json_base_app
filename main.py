@@ -34,6 +34,10 @@ def main_page():
         return render_template('main_show_page.html')#, LUGR=len_user_gets_requests)
     return render_template('welcome.php')
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html")
+
 @app.route('/profile', methods=["GET", "POST"])
 def index():
     if 'username' in session:
@@ -50,10 +54,13 @@ def test_in_here():
         if request.method == 'POST':
             return_data = {"name": request.form["name"], "email": request.form["email"], "username": request.form["username"], "password": make_password_to_save(request.form["password"]), "work": request.form["work"], "product_or_time_reservs": request.form['job_product'], "location": request.form["location"], "device_ip_address": ip_address}
             singin_form(return_data)
+            add_user_profile_address(request.form["username"], request.form["location"])
             session["username"] = request.form["username"]
+            session["Profile_Type"] = return_data["product_or_time_reservs"]
             if return_data["product_or_time_reservs"] == "sell_product":
                 return redirect(url_for("index"))
-            return redirect(url_for("test_set_time_line"))
+            else:
+                return redirect(url_for("test_set_time_line"))
         return render_template('singin.html')
     return redirect(url_for("index"))
 
@@ -64,13 +71,12 @@ def test_set_time_line():
         #add ip_address checks
         main_data = get_user_to(session["username"])
         if request.method == 'POST':
-            if main_data["profile_type"] == "sell_both" or main_data["profile_type"] == "sell_reserv_time" and main_data["timeline"] == "":
+            if session["Profile_Type"] == "sell_both" or session["Profile_Type"] == "sell_reserv_time" and main_data["timeline"] == "":
                 input_timeline = request.form["timeline"]
                 if input_timeline == "":
                     timeline = time_line_for_every_day("0/24/60")
                 else:
                     timeline = time_line_for_every_day(input_timeline)
-                print(timeline)
                 main_data["timeline"] = timeline
                 change_profile_D(session["username"], main_data)
                 return redirect(url_for('customize_timeline'))
@@ -158,7 +164,7 @@ def logout():
     if 'username' in session:
         LogOuT(session['username'])
         session.pop('username', None)
-        return redirect(url_for('index'))
+        return redirect(url_for("main_page"))
     return redirect(url_for('main_page'))
 
 @app.route('/add_new_product', methods=['POST', 'GET'])
@@ -172,13 +178,8 @@ def add_new_product():
             product_address = make_password_to_save(''.join([parts for parts in new_product]))
             File = request.files['file']
             if File and check_img_formath(File.filename):
-                filename = product_address + ".jpeg"
-                with sqlite3.connect("Image_databases.db") as conn:
-                    c = conn.cursor()
-                    c.execute("INSERT INTO PRODUCTS_IMAGES VALUES (?, ?, ?)", [session["username"], product_address, sqlite3.Binary(File.read())])
-                    conn.commit()
                 #File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
-                new_product["product_image"] = filename
+                new_product["product_image"] = File.read()
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
             new_product["product_address"] = product_address
@@ -191,9 +192,9 @@ def add_new_product():
 def show_products_or_timelines(username):
     if "username" in session:
         check_user_logage(session["username"])
-        user_data = get_user_to(username)["public"]
-        user_all_products_and_times = get_user_to(username)["products"]
-        return render_template("show_profile.html", user_info=str(user_data), user_sells=user_all_products_and_times)
+        #user_data = get_user_to(username)["public"]
+        #user_all_products_and_times = get_user_to(username)["products"]
+        return render_template("show_profile.html")#, user_info=str(user_data), user_sells=user_all_products_and_times)
     return redirect(url_for("login"))
 
 
@@ -201,7 +202,7 @@ def show_products_or_timelines(username):
 def show_user_requests_and_change_it_by_user():
     if "username" in session:
         check_user_logage(session["username"])
-        return "welcome to your products"
+        return "test"
 @app.route("/show_all_products/<username>")
 def show_user_products(username):
     #set timelines and ranges to show products

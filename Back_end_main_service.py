@@ -8,13 +8,23 @@ def find_main_json_filename():
     #if len(main_json_file) > 1:
         #print("find more then one json file, Please delete the nonesance ones, but if you don't want I don't care I only reade the first one I find and this is your fald if its crash")
     #return main_json_file[0]
-    return "test3.json"
+    return "test4.json"
 
 def chack_and_coloect_the_json_filename(json_filename):
     with open(json_filename, 'r') as Read_file:
             return_json_file = json.load(Read_file)
     return return_json_file
     #return {}
+
+def get_user_profile_address(username):
+    with open("profiles_address.json", "r") as read_json:
+        get_user_address = json.load(write_json)
+    return get_user_address[username]
+
+def add_user_profile_address(username, location):
+    user_address = {"username": username, "location": location}
+    with open("profiles_address.json", "w") as write_json:
+        json.dump(user_address, write_json)
 
 def make_password_to_save(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -88,10 +98,8 @@ def show_all_users_poblic_data_in_user_location(user_location):
 
 def get_user_to(usern):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    for citi in send_data:
-        for user in send_data[citi]:
-            if user == usern:
-                return send_data[citi][user]
+    user_address = get_user_profile_address(usern)
+    return send_data[user_address["location"], user_address["username"]]
 
 def delete_user(username):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
