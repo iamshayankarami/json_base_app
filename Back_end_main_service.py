@@ -48,7 +48,7 @@ def singin_form(input_data):
 
 def login_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    G_user_data = get_user_to(input_data["username"])
+    G_user_data = get_user_information_but_without_has_user_location(input_data["username"])
     if G_user_data != []:
         if G_user_data["password"] == input_data["password"]:
             send_data[G_user_data["public"]["location"]][input_data["username"]]["user_activation"] = "log-in"
@@ -57,12 +57,12 @@ def login_form(input_data):
             return {"ERROR": "wrong_password"}
     else:
         return {"ERROR": "user_not_found"}
-def show_the_user_wants_products(username):
-    user_data = get_user_to(username)
+def show_the_user_wants_products(user_address):
+    user_data = get_user_to(user_address)
 
-def change_profile_D(user_name, main_user_data):
+def change_profile_D(main_user_data, user_address):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    send_data[get_user_to(user_name)["public"]["location"]][user_name] = main_user_data
+    send_data[user_address["location"]][user_address["username"]] = main_user_data
     with open(find_main_json_filename(), "w") as Write_file:
         json.dump(send_data, Write_file)
 
@@ -98,10 +98,16 @@ def show_all_users_poblic_data_in_user_location(user_location):
 					append_data.append(user[name])
 	return append_data
 
-def get_user_to(usern):
+def get_user_to(user_address):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    user_address = get_user_profile_address(usern)
     return send_data[user_address["location"]][user_address["username"]]
+
+def get_user_information_but_without_has_user_location(username):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    for citi in send_data:
+        for user in send_data[citi]:
+            if user == username:
+                return send_data[citi][user]
 
 def delete_user(username):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
@@ -148,8 +154,8 @@ def show_requests(username):
 	else:
 		return ''
 
-def check_user_activation(username):
-	return get_user_to(username)[4]
+#def check_user_activation(username):
+#	return get_user_to(username)[4]
 
 def send_request(user, request_profile):
 	send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
@@ -326,10 +332,10 @@ def json_singin(data):
         json.dump(send_data, write)
 
 def Longin(username, password):
-    if get_user_to(username) == None:
+    if get_user_information_but_without_has_user_location(username) == None:
         return "user not found"
     else:
-        if password == get_user_to(username)["private"]['password']:
+        if password == get_user_information_but_without_has_user_location(username)["private"]['password']:
             login_m(username)
             return "loggin_good"
         else:

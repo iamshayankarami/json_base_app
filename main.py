@@ -17,7 +17,7 @@ def check_img_formath(filename):
 
 
 def check_user_logage(username):
-    if get_user_to(username)['user_activation'] == 'log-out':
+    if get_user_to(session["user_address"])['user_activation'] == 'log-out':
         return redirect(url_for('login'))
 
 def get_user_requests(username):
@@ -43,7 +43,7 @@ def index():
     if 'username' in session:
         username = session['username']
         check_user_logage(username)
-        user_data = get_user_to(username)
+        user_data = get_user_to(session["user_address"])
         personal_requests = user_data['requests_for_user']
         return render_template("profile.html", username=username, porsonal_requests=personal_requests, profile_type=user_data["profile_type"])
 
@@ -54,9 +54,9 @@ def test_in_here():
         if request.method == 'POST':
             return_data = {"name": request.form["name"], "email": request.form["email"], "username": request.form["username"], "password": make_password_to_save(request.form["password"]), "work": request.form["work"], "product_or_time_reservs": request.form['job_product'], "location": request.form["location"], "device_ip_address": ip_address}
             singin_form(return_data)
-            add_user_profile_address(request.form["username"], request.form["location"])
+            #add_user_profile_address(request.form["username"], request.form["location"])
             session["username"] = request.form["username"]
-            session["Profile_Type"] = return_data["product_or_time_reservs"]
+            session["user_address"] = {"username": return_data["username"], "location": return_data["location"]}
             if return_data["product_or_time_reservs"] == "sell_product":
                 return redirect(url_for("index"))
             else:
@@ -69,16 +69,16 @@ def test_set_time_line():
     if "username" in session:
         check_user_logage(session["username"])
         #add ip_address checks
-        main_data = get_user_to(session["username"])
+        main_data = get_user_to(session["user_address"])
         if request.method == 'POST':
-            if session["Profile_Type"] == "sell_both" or session["Profile_Type"] == "sell_reserv_time" and main_data["timeline"] == "":
+            if main_data["profile_type"] == "sell_both" or main_data["profile_type"] == "sell_reserv_time" and main_data["timeline"] == "":
                 input_timeline = request.form["timeline"]
                 if input_timeline == "":
                     timeline = time_line_for_every_day("0/24/60")
                 else:
                     timeline = time_line_for_every_day(input_timeline)
                 main_data["timeline"] = timeline
-                change_profile_D(session["username"], main_data)
+                change_profile_D(main_data, session["user_address"])
                 return redirect(url_for('customize_timeline'))
         return render_template("customize_selling.html")
 
@@ -86,14 +86,14 @@ def test_set_time_line():
 def customize_timeline():
     if "username" in session:
         check_user_logage(session["username"])
-        return_data = get_user_to(session["username"])
+        return_data = get_user_to(session["user_address"])
         if return_data["profile_type"] == "sell_both" or return_data["profile_type"] == "sell_reserv_time":
-            GTS = get_user_to(session["username"])["timeline"]
+            GTS = get_user_to(session["user_address"])["timeline"]
             if request.method == 'POST':
                 main_data = [element for element in request.form]
                 return_data["timeline"] = main_data[:len(main_data)-1]
                 #return_data["product_or_time_reservs"] = [TimeS for TimeS in main_data if TimeS not in check_time_requests(return_data["requests_for_user"])]
-                change_profile_D(session["username"], return_data)
+                change_profile_D(return_data, session["user_address"])
                 return redirect(url_for("index"))
         return render_template('custom_times.html', re=GTS, re_len=len(GTS))
 
@@ -113,6 +113,7 @@ def login():
             LOGIN_CHECK = Longin(user_name, password)
             if LOGIN_CHECK == "loggin_good":
                 session["username"] = user_name
+                session["user_address"] = {"username": get_user_information_but_without_has_user_location(user_name)["public"]["username"], "location": get_user_information_but_without_has_user_location(user_name)["public"]["location"]}
                 return redirect(url_for("index"))
             else:
                 flash(LOGIN_CHECK)
@@ -125,7 +126,7 @@ def SHOW_ALL():
     if 'username' in session:
         username=session['username']
         check_user_logage(username)
-        user_data=get_user_to(username)
+        user_data=get_user_to(session["user_address"])
         show_data = show_all_users_poblic_data_in_user_location(user_data[1]['location'])
         return ''.join([f'''<a href={url_for('show_user', show_username=users[1]['username'])}>{users[1]['username']} </a><b>{users[1]['work']} </b><br><br>''' for users in show_data if users[1]['username'] != username])
     return redirect(url_for('index'))
@@ -211,7 +212,7 @@ def show_user_products(username):
         #if username == session["username"]:
         #    return redirect(url_for("show_user_requests_and_change_it_by_user"))
         #else:
-        user_products = get_user_to(username)["products"]
+        user_products = get_user_to(session["user_address"])["products"]
         return render_template("show_and_edit_products.html", products=user_products)
 
 if __name__ == '__main__':
