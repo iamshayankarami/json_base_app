@@ -3,8 +3,11 @@ import os, time, sqlite3
 import urllib.request
 from Back_end_main_service import *
 
+imagesOfProducts = os.path.join("UPLOAD_FOLDER", "PRODUCT_IMG")
+
 app = Flask(__name__)
 app.secret_key = 'shayan-karami-secret-key-for-flask'
+app.config['ProductImages'] = imagesOfProducts
 
 def get_time():
 	return time.asctime()[11:19]
@@ -16,8 +19,8 @@ def check_img_formath(filename):
     return '.' in filename and filename.rsplit('.')[1].lower() in set(['jpg', 'png', 'jpeg'])
 
 
-def check_user_logage(username):
-    if get_user_to(session["user_address"])['user_activation'] == 'log-out':
+def check_user_logage(user_address):
+    if get_user_to(user_address)['user_activation'] == 'log-out':
         return redirect(url_for('login'))
 
 def get_user_requests(username):
@@ -29,7 +32,7 @@ def get_user_requests(username):
 @app.route('/', methods=['POST', 'GET'])
 def main_page():
     if 'username' in session:
-        check_user_logage(session["username"])
+        check_user_logage(session["user_address"])
         #len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
         return render_template('main_show_page.html')#, LUGR=len_user_gets_requests)
     return render_template('welcome.php')
@@ -41,11 +44,12 @@ def page_not_found(e):
 @app.route('/profile', methods=["GET", "POST"])
 def index():
     if 'username' in session:
-        username = session['username']
-        check_user_logage(username)
+        check_user_logage(session["user_address"])
+        print(session["username"], session["user_address"])
         user_data = get_user_to(session["user_address"])
+        #print(user_data["profile_type"])
         personal_requests = user_data['requests_for_user']
-        return render_template("profile.html", username=username, porsonal_requests=personal_requests, profile_type=user_data["profile_type"])
+        return render_template("profile.html", username=session["user_address"]["username"], porsonal_requests=personal_requests, profile_type=user_data["profile_type"])
 
 @app.route('/singin', methods=['GET', 'POST'])
 def test_in_here():
@@ -67,12 +71,13 @@ def test_in_here():
 @app.route('/singin/set_time_line', methods=['POST', 'GET'])
 def test_set_time_line():
     if "username" in session:
-        check_user_logage(session["username"])
+        check_user_logage(session["user_address"])
         #add ip_address checks
         main_data = get_user_to(session["user_address"])
         if request.method == 'POST':
-            if main_data["profile_type"] == "sell_both" or main_data["profile_type"] == "sell_reserv_time" and main_data["timeline"] == "":
+            if main_data["profile_type"] == "sell_both" or main_data["profile_type"] == "sell_reserv_time":
                 input_timeline = request.form["timeline"]
+                print(input_timeline)
                 if input_timeline == "":
                     timeline = time_line_for_every_day("0/24/60")
                 else:
@@ -85,7 +90,7 @@ def test_set_time_line():
 @app.route('/custom_main_time_line', methods=['POST', 'GET'])
 def customize_timeline():
     if "username" in session:
-        check_user_logage(session["username"])
+        check_user_logage(session["user_address"])
         return_data = get_user_to(session["user_address"])
         if return_data["profile_type"] == "sell_both" or return_data["profile_type"] == "sell_reserv_time":
             GTS = get_user_to(session["user_address"])["timeline"]
@@ -125,7 +130,7 @@ def SHOW_ALL():
     #ip_add = request.remote_addr
     if 'username' in session:
         username=session['username']
-        check_user_logage(username)
+        check_user_logage(session["user_address"])
         user_data=get_user_to(session["user_address"])
         show_data = show_all_users_poblic_data_in_user_location(user_data[1]['location'])
         return ''.join([f'''<a href={url_for('show_user', show_username=users[1]['username'])}>{users[1]['username']} </a><b>{users[1]['work']} </b><br><br>''' for users in show_data if users[1]['username'] != username])
@@ -137,7 +142,7 @@ def show_user():
     if 'username' in session:
         show_username = request.args.get('show_username', None)
         username = session['username']
-        check_user_logage(username)
+        check_user_logage(session["user_address"])
         status = send_Request(username, show_username)
         timelines = status.check_time_line()
         if request.method == 'POST':
@@ -151,7 +156,7 @@ def show_user():
 @app.route('/show_my_send_requests', methods=['POST', 'GET'])
 def show_my_send_requests():
     if 'username' in session:
-        check_user_logage(session["username"])
+        check_user_logage(session["user_address"])
         all_of_my_request = get_user_to(session['username'])[3]['send_requests']
         send_text = []
         for re in all_of_my_request:
@@ -171,28 +176,29 @@ def logout():
 @app.route('/add_new_product', methods=['POST', 'GET'])
 def add_new_product():
     if "username" in session:
-        check_user_logage(session["username"])
-        user_data = get_user_to(session["username"])
+        check_user_logage(session["user_address"])
+        user_data = get_user_to(session["user_address"])
         #if user_data["profile_type"] == "sell_both" or user_data["profile_type"] == "sell_product":
         if request.method == 'POST':
             new_product = {"product_seller": session["username"], 'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
             product_address = make_password_to_save(''.join([parts for parts in new_product]))
             File = request.files['file']
             if File and check_img_formath(File.filename):
-                #File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
-                new_product["product_image"] = File.read()
+                filename = product_address + ".jpeg"
+                File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                new_product["product_image"] = os.path.join("UPLOAD_FOLDER", "PRODUCT_IMG", filename)
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
             new_product["product_address"] = product_address
             user_data["products"].append(new_product)
-            change_profile_D(session["username"], user_data) 
+            change_profile_D(user_data, session["user_address"]) 
             return redirect(url_for("index"))
     return render_template('add_new_product.html')
 
 @app.route("/<username>", methods=["POST", "GET"])
 def show_products_or_timelines(username):
     if "username" in session:
-        check_user_logage(session["username"])
+        check_user_logage(session["user_address"])
         #user_data = get_user_to(username)["public"]
         #user_all_products_and_times = get_user_to(username)["products"]
         return render_template("show_profile.html")#, user_info=str(user_data), user_sells=user_all_products_and_times)
@@ -202,17 +208,19 @@ def show_products_or_timelines(username):
 @app.route("/show_all_products")
 def show_user_requests_and_change_it_by_user():
     if "username" in session:
-        check_user_logage(session["username"])
-        return "test"
+        check_user_logage(session["user_address"])
+        user_products = get_user_to(session["user_address"])["products"]
+        products_images = os.path.join(app.config['ProductImages'], "dbf980e64babf2597b1967c091dbb1d8b0f1478bf334dddb5c4f743f35168c18.jpeg")
+        return render_template("show_and_edit_products.html", products=user_products, product_images=products_images)
 @app.route("/show_all_products/<username>")
 def show_user_products(username):
     #set timelines and ranges to show products
     if "username" in session:
-        check_user_logage(session["username"])
-        #if username == session["username"]:
-        #    return redirect(url_for("show_user_requests_and_change_it_by_user"))
-        #else:
-        user_products = get_user_to(session["user_address"])["products"]
+        check_user_logage(session["user_address"])
+        if username == session["username"]:
+            return redirect(url_for("show_user_requests_and_change_it_by_user"))
+        else:
+            user_products = get_user_to(session["user_address"])["products"]
         return render_template("show_and_edit_products.html", products=user_products)
 
 if __name__ == '__main__':
