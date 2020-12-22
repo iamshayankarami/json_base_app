@@ -33,9 +33,16 @@ def get_user_requests(username):
 def main_page():
     if 'username' in session:
         check_user_logage(session["user_address"])
+        user_data = get_user_to(session["user_address"])
+        all_that_address = get_all_products_location(session["user_address"]["location"])
+        print(all_that_address)
         #len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
-        return render_template('main_show_page.html')#, LUGR=len_user_gets_requests)
+        return render_template('main_show_page.html', products=all_that_address)
     return render_template('welcome.php')
+
+@app.route('/<product_address>', methods=['POST', 'GET'])
+def show_product(product_address):
+    return product_address
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -184,8 +191,8 @@ def add_new_product():
             product_address = make_password_to_save(''.join([parts for parts in new_product]))
             File = request.files['file']
             if File and check_img_formath(File.filename):
-                filename = product_address + ".jpeg"
-                File.save(os.path.join("/home/shayan/json_base_app/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                filename = product_address + ".png"
+                File.save(os.path.join("/UPLOAD_FOLDER/PRODUCT_IMG", filename), "PNG")
                 new_product["product_image"] = os.path.join("UPLOAD_FOLDER", "PRODUCT_IMG", filename)
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")

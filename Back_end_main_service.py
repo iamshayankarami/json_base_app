@@ -31,6 +31,9 @@ def add_user_profile_address(username, location):
 def make_password_to_save(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+def get_all_products_location(location):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    return [send_data["arak"][i]["products"] for i in send_data["arak"] if send_data["arak"][i]["products"] != []]
 
 def singin_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
