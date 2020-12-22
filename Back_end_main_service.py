@@ -35,6 +35,14 @@ def get_all_products_location(location):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     return [send_data["arak"][i]["products"] for i in send_data["arak"] if send_data["arak"][i]["products"] != []]
 
+def find_product(product_address):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    for citi in send_data:
+        for user in send_data[citi]:
+            if send_data[citi][user][products] != []:
+                for product in send_data[citi][user][products]:
+                    if product["product_address"] == product_address:
+                        return send_data[citi][user][products]
 def singin_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     show_data = {}
