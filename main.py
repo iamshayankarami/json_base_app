@@ -35,14 +35,12 @@ def main_page():
         check_user_logage(session["user_address"])
         user_data = get_user_to(session["user_address"])
         all_that_address = get_all_products_location(session["user_address"]["location"])
-        print(all_that_address)
-        #len_user_gets_requests = len([R for R in get_user_to(session['username'])[2]['requests'] if R['request_activ'] == "request_sended"])
         return render_template('main_show_page.html', products=all_that_address)
     return render_template('welcome.php')
 
 @app.route('/<product_address>', methods=['POST', 'GET'])
 def show_product(product_address):
-    return product_address
+    return str(find_product(product_address))
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -191,13 +189,13 @@ def add_new_product():
             product_address = make_password_to_save(''.join([parts for parts in new_product]))
             File = request.files['file']
             if File and check_img_formath(File.filename):
-                filename = product_address + ".png"
-                File.save(os.path.join("/UPLOAD_FOLDER/PRODUCT_IMG", filename), "PNG")
+                filename = product_address + ".jpeg"
+                File.save(os.path.join("/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/UPLOAD_FOLDER/PRODUCT_IMG", filename))
                 new_product["product_image"] = os.path.join("UPLOAD_FOLDER", "PRODUCT_IMG", filename)
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
             new_product["product_address"] = product_address
-            user_data["products"].append(new_product)
+            user_data["products"][new_product["product_address"]] = new_product
             change_profile_D(user_data, session["user_address"]) 
             return redirect(url_for("index"))
     return render_template('add_new_product.html')
@@ -217,8 +215,8 @@ def show_user_requests_and_change_it_by_user():
     if "username" in session:
         check_user_logage(session["user_address"])
         user_products = get_user_to(session["user_address"])["products"]
-        products_images = os.path.join(app.config['ProductImages'], "dbf980e64babf2597b1967c091dbb1d8b0f1478bf334dddb5c4f743f35168c18.jpeg")
-        return render_template("show_and_edit_products.html", products=user_products, product_images=products_images)
+        #products_images = "/media/shayan/SHAYAN/SHAYAN 2/json_base_app_database/UPLOAD_FOLDER/PRODUCT_IMG/0ab5714cc863b181ecee2f7dd64824c36aac22afd46dab1869325464c1be177e.jpeg"
+        return render_template("show_and_edit_products.html", products=user_products)#, product_images=products_images)
 @app.route("/show_all_products/<username>")
 def show_user_products(username):
     #set timelines and ranges to show products

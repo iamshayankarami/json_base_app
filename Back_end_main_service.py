@@ -8,7 +8,17 @@ def find_main_json_filename():
     #if len(main_json_file) > 1:
         #print("find more then one json file, Please delete the nonesance ones, but if you don't want I don't care I only reade the first one I find and this is your fald if its crash")
     #return main_json_file[0]
-    return "/media/shayan/SHAYAN/SHAYAN 2/json_base_app_database/version1_1.json"
+    return "/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/version1_1.json"
+
+def show_and_send_request_to_product(product_address):
+    send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
+    for citi in send_data:
+        for user in send_data[citi]:
+            for product in send_data[citi][user]:
+                if product["product_address"] == product_address:
+                    return send_data[citi][user]["products"][pro]
+            #if finded == False:
+            #    for time in [time for time in send_data["arak"]["ShayanKarami"]["timeline"] if time not in [send_data["arak"]["ShayanKarami"]["requests_for_user"][T]["time"] for T in send_data["arak"]["ShayanKarami"]["requests_for_user"]]]:
 
 def chack_and_coloect_the_json_filename(json_filename):
     with open(json_filename, 'r') as Read_file:
@@ -33,22 +43,22 @@ def make_password_to_save(password):
 
 def get_all_products_location(location):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    return [send_data["arak"][i]["products"] for i in send_data["arak"] if send_data["arak"][i]["products"] != []]
+    return [send_data[location][i]["products"] for i in send_data[location] if send_data[location][i]["products"] != []]
 
 def find_product(product_address):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     for citi in send_data:
         for user in send_data[citi]:
-            if send_data[citi][user][products] != []:
-                for product in send_data[citi][user][products]:
-                    if product["product_address"] == product_address:
-                        return send_data[citi][user][products]
+            for product in send_data[citi][user]["products"]:
+                if product == product_address:
+                    return send_data[citi][user]["products"][product]
+
 def singin_form(input_data):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     show_data = {}
-    show_data = {"private": {parts:input_data[parts] for parts in input_data if parts not in ["device_ip_address", "product_or_time_reservs", "username", "location"]}, "public": {parts:input_data[parts] for parts in input_data if parts in ["username", "email", "work", "location"]}, "send_requests_from_user": [], "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in", "requests_for_user": [], "products": []}
+    show_data = {"private": {parts:input_data[parts] for parts in input_data if parts not in ["device_ip_address", "product_or_time_reservs", "username", "location"]}, "public": {parts:input_data[parts] for parts in input_data if parts in ["username", "email", "work", "location"]}, "send_requests_from_user": {}, "profile_type": input_data["product_or_time_reservs"], "active_ip_address": [input_data["device_ip_address"]], "user_activation": "log-in", "requests_for_user": {}, "products": {}}
     if input_data["product_or_time_reservs"] == "sell_reserv_time" or input_data["product_or_time_reservs"] == "sell_both":
-        show_data["timeline"] = []
+        show_data["timeline"] = {}
     if input_data["location"] in [citi for citi in send_data]:
         send_data[input_data["location"]][input_data["username"]] = show_data
     else:
