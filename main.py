@@ -190,13 +190,14 @@ def add_new_product():
             File = request.files['file']
             if File and check_img_formath(File.filename):
                 filename = product_address + ".jpeg"
-                File.save(os.path.join("/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/UPLOAD_FOLDER/PRODUCT_IMG", filename))
+                #File.save(os.path.join("/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/UPLOAD_FOLDER/PRODUCT_IMG", filename))
                 new_product["product_image"] = os.path.join("UPLOAD_FOLDER", "PRODUCT_IMG", filename)
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
             new_product["product_address"] = product_address
-            user_data["products"][new_product["product_address"]] = new_product
-            change_profile_D(user_data, session["user_address"]) 
+
+            print(save_new_product(session["user_address"], new_product))
+            #change_profile_D(save_new_product(session["user_address"], new_product), session["user_address"]) 
             return redirect(url_for("index"))
     return render_template('add_new_product.html')
 
