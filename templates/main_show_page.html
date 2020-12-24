@@ -1,14 +1,36 @@
 <!DOCTYPE html>
 <html>
+<style type="text/css">
+  .products_div{
+    height: 300px;
+    width: 400px;
+    background-color: green;
+    color: white;
+  }
+  .times_div {
+    height: 300px;
+    width: 400px;
+    background-color: yellow;
+    color: black;
+  }
+</style>
 <title>صفحه اصلی</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{% for product in products[0] %}
-  <a href="/{{ product['product_address'] }}"><div>
-    <h1>{{ product["product_name"] }}</h1>
-    <h1>by: {{ product["product_seller"] }}</h1>
-    <h1>count: {{ product["product_cpacity"] }}</h1>
-    <h1>price: {{ product["product_price"]}}</h1>
+<body>
+<center>
+{% for product in products["products"][0] %}
+  <a href='/product/{{ products["products"][0][product]["product_address"] }}'style="text-decoration: none;"><div class="products_div">
+    <h1>{{ products["products"][0][product]["product_name"] }}</h1>
+    <h1>by: {{ products["products"][0][product]["product_seller"] }}</h1>
+    <h1>count: {{ products["products"][0][product]["product_cpacity"] }}</h1>
+    <h1>price: {{ products["products"][0][product]["product_name"] }}</h1>
   </div></a>
 {% endfor %}
+{% for timeseller in products["sell_times"] %}
+  <a href="/users/{{ timeseller }}" style="text-decoration: none;"><div class="times_div">
+    <h1>check times of {{ timeseller }}</h1>
+  </div></a>
+{% endfor %}
+</center>
 </body>
 </html>

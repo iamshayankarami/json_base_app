@@ -35,12 +35,9 @@ def main_page():
         check_user_logage(session["user_address"])
         user_data = get_user_to(session["user_address"])
         all_that_address = get_all_products_location(session["user_address"]["location"])
+        #return str(all_that_address["products"][0])
         return render_template('main_show_page.html', products=all_that_address)
     return render_template('welcome.php')
-
-@app.route('/<product_address>', methods=['POST', 'GET'])
-def show_product(product_address):
-    return str(find_product(product_address))
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -199,15 +196,26 @@ def add_new_product():
             return redirect(url_for("index"))
     return render_template('add_new_product.html')
 
-@app.route("/<username>", methods=["POST", "GET"])
+@app.route("/time_buy/<username>", methods=["POST", "GET"])
 def show_products_or_timelines(username):
     if "username" in session:
         check_user_logage(session["user_address"])
-        #user_data = get_user_to(username)["public"]
-        #user_all_products_and_times = get_user_to(username)["products"]
-        return render_template("show_profile.html")#, user_info=str(user_data), user_sells=user_all_products_and_times)
+        get_require_username_data = get_user_information_but_without_has_user_location(username)
+        user_timelines = [time for time in get_require_username_data["timeline"]]# if time not in [t["request_time"] for t in get_require_username_data["requests_for_user"] if get_require_username_data["requests_for_user"] != {}]]
+        if request.method == "POST":
+            input_time = request.form["input_time"]
+            check = send_time_request(username, input_time, session["user_address"])
+            print(check)
+            if check["ERROR"] == "time_is_not_valibel":
+                flash(check["ERROR"])
+            else:
+                redirect(url_for("index"))
+        return render_template("show_profile.html", user_info=get_require_username_data["public"], timelines=user_timelines)
     return redirect(url_for("login"))
 
+@app.route('/product/<product_address>', methods=['POST', 'GET'])
+def show_product(product_address):
+    return str(find_product(product_address))
 
 @app.route("/show_all_products")
 def show_user_requests_and_change_it_by_user():

@@ -10,6 +10,20 @@ def find_main_json_filename():
     #return main_json_file[0]
     return "/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/version1_1.json"
 
+def send_time_request(username, input_time, user_address):
+    user_data = get_user_to(user_address)
+    target_user = get_user_information_but_without_has_user_location(username)
+    if input_time not in [Time["request_time"] for Time in target_user["requests_for_user"]]:
+        request_address = make_password_to_save(time.asctime() + username + input_time + user_address["username"])
+        request = {"request_from": user_address["username"], "request_to": username, "request_time": input_time, "request_address": request_address}
+        target_user["requests_for_user"][request_address] = request
+        user_data["send_requests_from_user"][request_address] = request
+        change_profile_D(user_data, user_address)
+        change_profile_D(target_user, {"username": username, "location": target_user["public"]["location"]})
+        return {"ERROR": "None"}
+    else:
+        return {"ERROR": "time_is_not_valibel"}
+
 def show_and_send_request_to_product(product_address):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
     for citi in send_data:
