@@ -186,18 +186,16 @@ def add_new_product():
         #if user_data["profile_type"] == "sell_both" or user_data["profile_type"] == "sell_product":
         if request.method == 'POST':
             new_product = {"product_seller": session["username"], 'product_name': request.form['product_name'], 'product_cpacity': request.form['product_cpacity'], 'product_price': request.form['product_price'], 'product_activ': 'new_product'}
-            product_address = make_password_to_save(''.join([parts for parts in new_product]))
+            new_product["product_address"] = make_password_to_save(new_product["product_seller"] + new_product["product_name"] + new_product["product_cpacity"] + new_product["product_price"])
+            print(new_product["product_address"])
             File = request.files['file']
             if File and check_img_formath(File.filename):
-                filename = product_address + ".jpeg"
+                filename = new_product["product_address"] + ".jpeg"
                 #File.save(os.path.join("/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/UPLOAD_FOLDER/PRODUCT_IMG", filename))
                 new_product["product_image"] = os.path.join("UPLOAD_FOLDER", "PRODUCT_IMG", filename)
             else:
                 new_product["product_image"] = os.path.join("/home/shayan/Downloads", "icons8-product-64.png")
-            new_product["product_address"] = product_address
-
-            print(save_new_product(session["user_address"], new_product))
-            #change_profile_D(save_new_product(session["user_address"], new_product), session["user_address"]) 
+            save_new_product(session["user_address"], new_product, new_product["product_address"]) 
             return redirect(url_for("index"))
     return render_template('add_new_product.html')
 

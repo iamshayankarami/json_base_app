@@ -20,10 +20,13 @@ def show_and_send_request_to_product(product_address):
             #if finded == False:
             #    for time in [time for time in send_data["arak"]["ShayanKarami"]["timeline"] if time not in [send_data["arak"]["ShayanKarami"]["requests_for_user"][T]["time"] for T in send_data["arak"]["ShayanKarami"]["requests_for_user"]]]:
 
-def save_new_product(user_address, product):
+def save_new_product(user_address, product, product_address):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    send_data[user_address["location"]][user_address["username"]]["products"][product["product_address"]] = product
-    return send_data[user_address["location"]][user_address["username"]]
+    user_data = get_user_to(user_address)
+    send_data[user_address["location"]][user_address["username"]]["products"][product_address] = product
+    user_data["products"] = send_data[user_address["location"]][user_address["username"]]["products"]
+    change_profile_D(user_data, user_address)
+
 
 def chack_and_coloect_the_json_filename(json_filename):
     with open(json_filename, 'r') as Read_file:
