@@ -51,7 +51,14 @@ def make_password_to_save(password):
 
 def get_all_products_location(location):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
-    return [send_data[location][i]["products"] for i in send_data[location] if send_data[location][i]["products"] != []]
+    products, sell_times = [], []
+    for user in send_data[location]:
+        if send_data[location][user]["profile_type"] != "sell_reserv_time":
+            if send_data[location][user]["products"] != []:
+                products.append(send_data[location][user]["products"])
+        if send_data[location][user]["profile_type"] != "sell_product":
+            sell_times.append(user)
+    return {"products": products, "sell_times": sell_times}
 
 def find_product(product_address):
     send_data = chack_and_coloect_the_json_filename(find_main_json_filename())
