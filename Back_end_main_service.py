@@ -11,9 +11,11 @@ def find_main_json_filename():
     return "/media/shayan/SHAYAN/SHAYAN2/json_base_app_database/version1_1.json"
 
 def send_time_request(username, input_time, user_address):
+    #the input have to be change this is just for testing.
     user_data = get_user_to(user_address)
     target_user = get_user_information_but_without_has_user_location(username)
-    if input_time not in [Time["request_time"] for Time in target_user["requests_for_user"]]:
+    if input_time not in [target_user["requests_for_user"][r]["request_time"] for r in target_user["requests_for_user"]]: 
+    #if input_time not in [Time["request_time"] for Time in target_user["requests_for_user"]]:
         request_address = make_password_to_save(time.asctime() + username + input_time + user_address["username"])
         request = {"request_from": user_address["username"], "request_to": username, "request_time": input_time, "request_address": request_address}
         target_user["requests_for_user"][request_address] = request

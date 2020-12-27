@@ -201,7 +201,7 @@ def show_products_or_timelines(username):
     if "username" in session:
         check_user_logage(session["user_address"])
         get_require_username_data = get_user_information_but_without_has_user_location(username)
-        user_timelines = [time for time in get_require_username_data["timeline"]]# if time not in [t["request_time"] for t in get_require_username_data["requests_for_user"] if get_require_username_data["requests_for_user"] != {}]]
+        user_timelines = [time for time in get_require_username_data["timeline"]]
         if request.method == "POST":
             input_time = request.form["input_time"]
             check = send_time_request(username, input_time, session["user_address"])
