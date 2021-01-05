@@ -392,3 +392,28 @@ def Longin(username, password):
             return "loggin_good"
         else:
             return 'wronge password'
+
+
+
+#this is the api for the page_manage("web_manage")
+#this is just the begening and it is so simpel but realy cool.
+        
+class web_page_class:
+    def __init__(self, username):
+        self.username = username
+        self.paths_syntex = {"name": "<h1>{text}</h1>", "address": "<h2>{text}</h2>", "requests": "<div class='{class_name}'></div>"}
+        self.return_string = ""
+
+    def add_new_path(self, input_path):
+        if input_path in self.paths_syntex:
+            self.return_string = ''.join(self.return_string + "<br>" + self.paths_syntex[input_path])
+            return {"ERROR": "none"}
+        else:
+            return {"ERROR": "wronge_data_format"}
+    def retrun_return_string(self):
+        return self.return_stringh
+
+
+
+
+
