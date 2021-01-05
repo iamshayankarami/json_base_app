@@ -235,5 +235,16 @@ def show_user_products(username):
             user_products = get_user_to(session["user_address"])["products"]
         return render_template("show_and_edit_products.html", products=user_products)
 
+#this page is just a test to trying to use web-manage_patherns in that project
+@app.route("/<username>/web_m", methods=['POST', 'GET'])
+def web_management(username):
+    if request.method == "POST":
+        if request.form["page_path"] == "":
+            return "your page is complitly saved"
+        else:
+            if request.form["page_path"] in path_parts:
+                pass
+    return render_template("web_manage.html", username=username)
+
 if __name__ == '__main__':
 	app.run("0.0.0.0", port=4000, debug=True)
