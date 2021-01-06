@@ -401,19 +401,15 @@ def Longin(username, password):
 class web_page_class:
     def __init__(self, username):
         self.username = username
-        self.paths_syntex = {"name": "<h1>{text}</h1>", "address": "<h2>{text}</h2>", "requests": "<div class='{class_name}'></div>"}
+        self.paths_syntex = {"big_text": "<h1 id={path_id}></h1>", "mid_text": "<h2 id={path_id}></h2>", "simple_div": "<div class='{path_id}'></div>"}
         self.return_string = ""
 
-    def add_new_path(self, input_path):
-        if input_path in self.paths_syntex:
-            self.return_string = ''.join(self.return_string + "<br>" + self.paths_syntex[input_path])
+    def add_new_path(self, path_mood, path_id):
+        if path_mood in self.paths_syntex:
+            self.return_string = ''.join(self.return_string + self.paths_syntex[path_mood].format(path_id=path_id) + "<br>")
             return {"ERROR": "none"}
         else:
             return {"ERROR": "wronge_data_format"}
-    def retrun_return_string(self):
-        return self.return_stringh
-
-
-
-
+    def print_string(self):
+        return self.return_string
 
