@@ -401,7 +401,7 @@ def Longin(username, password):
 class web_page_class:
     def __init__(self, username):
         self.username = username
-        self.paths_syntex = {"big_text": "<h1 id={path_id}></h1>", "mid_text": "<h2 id={path_id}></h2>", "simple_div": "<div class='{path_id}'></div>"}
+        self.paths_syntex = {"big_text": '<h1 id="{path_id}"></h1>', "mid_text": '<h2 id="{path_id}"></h2>', "simple_div": '<div class="{path_id}"></div>'}
         self.return_string = ""
 
     def add_new_path(self, path_mood, path_id):
